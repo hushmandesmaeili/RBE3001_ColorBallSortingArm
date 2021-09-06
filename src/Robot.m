@@ -16,7 +16,7 @@ classdef Robot < handle
         
         % Create a packet processor for an HID device with USB PID 0x007
         function packet = Robot(dev)
-             packet.myHIDSimplePacketComs=dev; 
+            packet.myHIDSimplePacketComs=dev; 
             packet.pol = java.lang.Boolean(false);
         end
         
@@ -92,11 +92,27 @@ classdef Robot < handle
         % Opens the gripper
         function openGripper(packet)
             packet.writeGripper(180);
-        end
+        end  
         
         % Closes the gripper
         function closeGripper(packet)
             packet.writeGripper(0);
+        end
+        
+        % Takes a 1x3 array of joint values in degrees to be sent directly
+        % to the actuators and bypasses interpolation
+        function servo_jp(pp, q)
+            SERV_ID = 1848;
+            packet = zeros(15, 1, 'single');
+            packet(1) = 0;    %one second time
+            packet(2) = 0;       %linear interpolation
+            packet(3) = q(1);
+            packet(4) = q(2);       % Second link to 0
+            packet(5) = q(3);       % Third link to 0
+
+            % Send packet to the server and get the response      
+            %pp.write sends a 15 float packet to the micro controller
+            pp.write(SERV_ID, packet)
         end
         
     end
