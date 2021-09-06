@@ -110,6 +110,10 @@ try
       
   end
   
+%     Test for interpolate_jp()
+%     pp.interpolate_jp([0,0,0], 1000);
+    
+
     % Test for servo_jp() 
 %   q = [0,0,0];
 %   pp.servo_jp(q);

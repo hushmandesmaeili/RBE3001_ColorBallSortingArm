@@ -114,6 +114,22 @@ classdef Robot < handle
             %pp.write sends a 15 float packet to the micro controller
             pp.write(SERV_ID, packet)
         end
+
+        % Takes a 1x3 array joint values and interpolation time in ms
+        function interpolate_jp(pp, q, t)
+            tic
+            SERV_ID = 1848;
+            packet = zeros(15, 1, 'single');
+            packet(1) = t;
+            packet(2) = 0;
+            packet(3) = q(1);
+            packet(4) = q(2);
+            packet(5) = q(3);
+
+            pp.write(SERV_ID, packet);
+            toc
+        end
         
     end
+    
 end
