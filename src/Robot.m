@@ -99,6 +99,7 @@ classdef Robot < handle
             packet.writeGripper(0);
         end
         
+        % Takes a 1x3 array joint values and interpolation time in ms
         function interpolate_jp(pp, q, t)
             tic
             SERV_ID = 1848;
