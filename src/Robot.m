@@ -99,5 +99,20 @@ classdef Robot < handle
             packet.writeGripper(0);
         end
         
+        function interpolate_jp(pp, q, t)
+            tic
+            SERV_ID = 1848;
+            packet = zeros(15, 1, 'single');
+            packet(1) = t;
+            packet(2) = 0;
+            packet(3) = q(1);
+            packet(4) = q(2);
+            packet(5) = q(3);
+
+            pp.write(SERV_ID, packet);
+            toc
+        end
+        
     end
+    
 end
