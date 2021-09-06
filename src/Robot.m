@@ -99,5 +99,19 @@ classdef Robot < handle
             packet.writeGripper(0);
         end
         
+        function current = measured_js(pp, GETPOS, GETVEL)
+            current = zeros(2, 3);
+            if GETPOS
+               SERVER_ID_READ = 1910;
+               returnPacket = pp.read(SERVER_ID_READ);
+               current(1, :) = [returnPacket(3) returnPacket(5) returnPacket(7)]; 
+            end
+            if GETVEL
+               SERVER_ID_READ = 1822;
+               returnPacket = pp.read(SERVER_ID_READ);
+               current(2, :) = [returnPacket(2) returnPacket(5) returnPacket(8)];
+            end
+        end
+        
     end
 end
