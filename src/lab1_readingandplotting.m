@@ -48,6 +48,36 @@ try
   disp("position array:");
   disp(pos_array);
   disp(time_array);
+  
+  outputMatrix = [time_array pos_array]; %should combine matrices into one, with time being in the first column
+  writematrix(outputMatrix, 'Time_Position.csv'); %should output to .csv file
+
+%   I think this is how you would do the next part, not positive
+%   also need to figure out where semicolons are needed and where they are
+%   not 
+%
+%   figure('Joint Motion') %create figure w/ title
+%   
+%   subplot(3, 1, 1) %subplot 1 (top of column)
+%   plot(time_arrray(:, 1), pos_array(:, 1)) %plot time vs first column of position
+%   xlabel('Time [ms]') %x axis label
+%   ylabel('Position []') %y axis label
+%   title('Joint 1 Motion') %title of subplot
+%   
+%   subplot(3, 1, 2) %subplot 2 (second row in column), all other lines work same way as the previous subplot
+%   plot(time_arrray(:, 1), pos_array(:, 2))
+%   xlabel('Time [ms]')
+%   ylabel('Position []')
+%   title('Joint 2 Motion')
+%   
+%   ssubplot(3, 1, 3)
+%   plot(time_arrray(:, 1), pos_array(:, 3))
+%   xlabel('Time [ms]')
+%   ylabel('Position []')
+%   title('Joint 3 Motion')
+  
+  
+  
 catch exception
     getReport(exception)
     disp('Exited on error, clean shutdown');
