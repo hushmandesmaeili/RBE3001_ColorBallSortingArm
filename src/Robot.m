@@ -3,7 +3,8 @@ classdef Robot < handle
     properties
         myHIDSimplePacketComs;
         pol; 
-        GRIPPER_ID = 1962
+        GRIPPER_ID = 1962;
+        endMotionSetPos;
     end
     
     methods
@@ -109,6 +110,8 @@ classdef Robot < handle
             packet(3) = q(1);
             packet(4) = q(2);       % Second link to 0
             packet(5) = q(3);       % Third link to 0
+            
+            pp.endMotionSetPos = q;
 
             % Send packet to the server and get the response      
             %pp.write sends a 15 float packet to the micro controller
@@ -125,6 +128,8 @@ classdef Robot < handle
             packet(3) = q(1);
             packet(4) = q(2);
             packet(5) = q(3);
+            
+            pp.endMotionSetPos = q;
 
             pp.write(SERV_ID, packet);
             toc
@@ -159,6 +164,12 @@ classdef Robot < handle
             SERV_ID_READ = 1910; %set id to 1910 -> the one for getting positions and setpoints    
             packet = pp.read(SERV_ID_READ); %set packet to read current robot positions and setpoints
             currentSetPos = [packet(2, 1) packet(4, 1) packet(6,1)]; %set output array to setpoints for each motor (3 total)
+        end
+        
+        % Returns a 1x3 array that contains the end-of-motion joint setpoint 
+        % positions in degrees
+        function goal = goal_js(pp)
+            goal = pp.endMotionSetPos;
         end
         
     end
