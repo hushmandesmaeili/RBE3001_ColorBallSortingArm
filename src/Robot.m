@@ -130,6 +130,14 @@ classdef Robot < handle
             toc
         end
         
+        %Returns 1x3 array that contains current joint set point positions
+        %in degrees
+        function currentSetPos = setpoint_js(pp)
+            SERV_ID_READ = 1910;     
+            packet = pp.read(SERV_ID_READ);
+            currentSetPos = [packet(2) packet (4) packet(6)]; 
+        end
+        
     end
     
 end

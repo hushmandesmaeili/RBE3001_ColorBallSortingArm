@@ -117,6 +117,9 @@ try
     % Test for servo_jp() 
 %   q = [0,0,0];
 %   pp.servo_jp(q);
+
+%test for setpoint_js
+%pp.setpoint_js
   
   % Closes then opens the gripper
   pp.closeGripper()
