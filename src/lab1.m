@@ -51,7 +51,7 @@ try
   % The following code generates a sinusoidal trajectory to be
   % executed on joint 1 of the arm and iteratively sends the list of
   % setpoints to the Nucleo firmware. 
-  viaPts = [0,40,0];
+  viaPts = [0,45,0];
 
   for k = viaPts
       tic
@@ -63,10 +63,10 @@ try
       packet(5) = 0;% Third link to 0
 
       % Send packet to the server and get the response      
-      %pp.write sends a 15 float packet to the micro controller
-       pp.write(SERV_ID, packet); 
-       %pp.read reads a returned 15 float backet from the micro controller.
-       returnPacket = pp.read(SERVER_ID_READ);
+      % pp.write sends a 15 float packet to the micro controller
+      pp.write(SERV_ID, packet); 
+      % pp.read reads a returned 15 float backet from the micro controller.
+      returnPacket = pp.read(SERVER_ID_READ);
       toc
 
       % Test for setpoint_js
@@ -90,12 +90,37 @@ try
       
   end
   
+  % Test for goal_js
+%   pp.interpolate_jp([45,45,0], 1000);
+%   disp('Moving now')
+%   pp.goal_js()
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.goal_js()
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+%   pp.measured_js(1, 1)
+%   pause(0.1)
+  
   % Test for interpolate_jp()
 %   pp.interpolate_jp([0,0,0], 1000);
     
   % Test for servo_jp() 
-%   q = [0,0,0];
-%   pp.servo_jp(q);
+%    q = [0,0,0];
+%    pp.servo_jp(q);
   
   % Closes then opens the gripper
   pp.closeGripper()

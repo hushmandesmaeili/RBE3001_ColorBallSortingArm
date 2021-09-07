@@ -5,7 +5,6 @@ classdef Robot < handle
         pol; 
         GRIPPER_ID = 1962;
         endMotionSetPos;
-        
     end
     
     methods
@@ -112,7 +111,7 @@ classdef Robot < handle
             packet(4) = q(2);       % Second link to 0
             packet(5) = q(3);       % Third link to 0
             
-            endMotionSetPos = q;
+            pp.endMotionSetPos = q;
 
             % Send packet to the server and get the response      
             %pp.write sends a 15 float packet to the micro controller
@@ -130,7 +129,7 @@ classdef Robot < handle
             packet(4) = q(2);
             packet(5) = q(3);
             
-            endMotionSetPos = q;
+            pp.endMotionSetPos = q;
 
             pp.write(SERV_ID, packet);
             toc
@@ -169,8 +168,8 @@ classdef Robot < handle
         
         % Returns a 1x3 array that contains the end-of-motion joint setpoint 
         % positions in degrees
-        function goal = goal_js()
-            goal = endMotionSetPos;
+        function goal = goal_js(pp)
+            goal = pp.endMotionSetPos;
         end
         
     end
