@@ -128,6 +128,27 @@ classdef Robot < handle
 
             pp.write(SERV_ID, packet);
             toc
+
+        end
+        
+        % Takes two bool values, GETPOS and GETVEL. Returns only requested
+        % date, and set rest to zero. 
+        % Returns a 1x3 array that contains current joint positions in
+        % degrees (1st row) and/or current velocities (2nd row)
+        function current = measured_js(pp, GETPOS, GETVEL)
+            current = zeros(2, 3);
+            
+            if GETPOS
+               SERVER_ID_READ = 1910;
+               returnPacket = pp.read(SERVER_ID_READ);
+               current(1, :) = [returnPacket(3, 1) returnPacket(5, 1) returnPacket(7, 1)]; 
+            end
+            
+            if GETVEL
+               SERVER_ID_READ = 1822;
+               returnPacket = pp.read(SERVER_ID_READ);
+               current(2, :) = [returnPacket(2, 1) returnPacket(5, 1) returnPacket(8, 1)];
+            end
         end
         
     end
