@@ -133,11 +133,11 @@ classdef Robot < handle
         %Returns 1x3 array that contains current joint set point positions
         %in degrees
         function currentSetPos = setpoint_js(pp)
-            currentSetPos = [0 0 0]; %set output to zero 1x3 array
+            currentSetPos = zeros(1,3,'single'); %set output to zero 1x3 array
             packet = zeros(15, 1, 'single'); %set packet to zero 1x15 array
             SERV_ID_READ = 1910; %set id to 1910 -> the one for getting positions and setpoints    
             packet = pp.read(SERV_ID_READ); %set packet to read current robot positions and setpoints
-            currentSetPos = [packet(1, 2) packet(1, 4) packet(1, 6)]; %set output array to setpoints for each motor (3 total)
+            currentSetPos = [packet(2, 1) packet(4, 1) packet(6,1)]; %set output array to setpoints for each motor (3 total)
         end
         
     end
