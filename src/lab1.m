@@ -69,8 +69,8 @@ try
        returnPacket = pp.read(SERVER_ID_READ);
       toc
 
-%       test for setpoint_js
-      pp.setpoint_js
+      % test for setpoint_js
+%       pp.setpoint_js
 
       
       if DEBUG
