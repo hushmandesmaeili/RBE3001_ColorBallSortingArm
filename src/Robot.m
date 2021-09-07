@@ -16,7 +16,7 @@ classdef Robot < handle
         
         % Create a packet processor for an HID device with USB PID 0x007
         function packet = Robot(dev)
-             packet.myHIDSimplePacketComs=dev; 
+            packet.myHIDSimplePacketComs=dev; 
             packet.pol = java.lang.Boolean(false);
         end
         
@@ -92,11 +92,43 @@ classdef Robot < handle
         % Opens the gripper
         function openGripper(packet)
             packet.writeGripper(180);
-        end
+        end  
         
         % Closes the gripper
         function closeGripper(packet)
             packet.writeGripper(0);
+        end
+        
+        % Takes a 1x3 array of joint values in degrees to be sent directly
+        % to the actuators and bypasses interpolation
+        function servo_jp(pp, q)
+            SERV_ID = 1848;
+            packet = zeros(15, 1, 'single');
+            packet(1) = 0;    %one second time
+            packet(2) = 0;       %linear interpolation
+            packet(3) = q(1);
+            packet(4) = q(2);       % Second link to 0
+            packet(5) = q(3);       % Third link to 0
+
+            % Send packet to the server and get the response      
+            %pp.write sends a 15 float packet to the micro controller
+            pp.write(SERV_ID, packet)
+        end
+
+        % Takes a 1x3 array joint values and interpolation time in ms
+        function interpolate_jp(pp, q, t)
+            tic
+            SERV_ID = 1848;
+            packet = zeros(15, 1, 'single');
+            packet(1) = t;
+            packet(2) = 0;
+            packet(3) = q(1);
+            packet(4) = q(2);
+            packet(5) = q(3);
+
+            pp.write(SERV_ID, packet);
+            toc
+
         end
         
         % Takes two bool values, GETPOS and GETVEL. Returns only requested
@@ -105,11 +137,13 @@ classdef Robot < handle
         % degrees (1st row) and/or current velocities (2nd row)
         function current = measured_js(pp, GETPOS, GETVEL)
             current = zeros(2, 3);
+            
             if GETPOS
                SERVER_ID_READ = 1910;
                returnPacket = pp.read(SERVER_ID_READ);
                current(1, :) = [returnPacket(3, 1) returnPacket(5, 1) returnPacket(7, 1)]; 
             end
+            
             if GETVEL
                SERVER_ID_READ = 1822;
                returnPacket = pp.read(SERVER_ID_READ);
@@ -118,4 +152,5 @@ classdef Robot < handle
         end
         
     end
+    
 end
