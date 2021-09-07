@@ -69,10 +69,11 @@ try
        returnPacket = pp.read(SERVER_ID_READ);
       toc
       
-      %display current position
-      pp.measured_js(1, 0)
-      %display current velocities
-      pp.measured_js(0, 1)
+      % Test for measured_js()
+%       %display current position
+%       pp.measured_js(1, 0)
+%       %display current velocities
+%       pp.measured_js(0, 1)
 
       if DEBUG
           disp('Sent Packet:')

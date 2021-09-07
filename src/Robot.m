@@ -99,6 +99,10 @@ classdef Robot < handle
             packet.writeGripper(0);
         end
         
+        % Takes two bool values, GETPOS and GETVEL. Returns only requested
+        % date, and set rest to zero. 
+        % Returns a 1x3 array that contains current joint positions in
+        % degrees (1st row) and/or current velocities (2nd row)
         function current = measured_js(pp, GETPOS, GETVEL)
             current = zeros(2, 3);
             if GETPOS
