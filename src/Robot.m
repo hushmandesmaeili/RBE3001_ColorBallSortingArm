@@ -152,7 +152,7 @@ classdef Robot < handle
             if GETVEL
                SERVER_ID_READ = 1822;
                returnPacket = pp.read(SERVER_ID_READ);
-               current(2, :) = [returnPacket(2, 1) returnPacket(5, 1) returnPacket(8, 1)];
+               current(2, :) = [returnPacket(3, 1) returnPacket(6, 1) returnPacket(9, 1)];
             end
         end
         
