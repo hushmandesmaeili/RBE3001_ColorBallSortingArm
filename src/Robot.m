@@ -104,12 +104,12 @@ classdef Robot < handle
             if GETPOS
                SERVER_ID_READ = 1910;
                returnPacket = pp.read(SERVER_ID_READ);
-               current(1, :) = [returnPacket(1, 3) returnPacket(1, 5) returnPacket(1, 7)]; 
+               current(1, :) = [returnPacket(3, 1) returnPacket(5, 1) returnPacket(7, 1)]; 
             end
             if GETVEL
                SERVER_ID_READ = 1822;
                returnPacket = pp.read(SERVER_ID_READ);
-               current(2, :) = [returnPacket(1, 2) returnPacket(1, 5) returnPacket(1, 8)];
+               current(2, :) = [returnPacket(2, 1) returnPacket(5, 1) returnPacket(8, 1)];
             end
         end
         
