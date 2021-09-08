@@ -32,10 +32,12 @@ try
   pp.interpolate_jp([0 0 0], 1000);
   pause(2);
     
-  pp.interpolate_jp([0 45 0], 2000);
+  pp.interpolate_jp([45 0 0], 2000);
   
   pos_array = zeros(1, 3);
   time_array = zeros(1, 1);
+  timestep_array = zeros(1, 1);
+  constrained_timestep_array = zeros(1, 1);
   
   tic
   measuredArray = pp.measured_js(1, 0);
@@ -43,38 +45,43 @@ try
       measuredArray = pp.measured_js(1, 0);
       pos_array(end+1, :) = measuredArray(1, :);
       time_array(end+1, 1) = 1000*toc;
+      timestep_array(end+1, 1) = time_array(end, 1) - time_array(end-1, 1);
+      if timestep_array(end, 1) < 1
+          constrained_timestep_array(end+1, 1) = timestep_array(end, 1);
+      end
   end
   
-  disp("position array:");
-  disp(pos_array);
-  disp(time_array);
   
-  outputMatrix = [time_array pos_array]; %should combine matrices into one, with time being in the first column
-  writematrix(outputMatrix, 'Time_Position.csv'); %should output to .csv file
-
-%   I think this is how you would do the next part, not positive
-%   also need to figure out where semicolons are needed and where they are
-%   not 
-%
-%   figure('Joint Motion') %create figure w/ title
-%   
-%   subplot(3, 1, 1) %subplot 1 (top of column)
-%   plot(time_arrray(:, 1), pos_array(:, 1)) %plot time vs first column of position
-%   xlabel('Time [ms]') %x axis label
-%   ylabel('Position []') %y axis label
-%   title('Joint 1 Motion') %title of subplot
-%   
-%   subplot(3, 1, 2) %subplot 2 (second row in column), all other lines work same way as the previous subplot
-%   plot(time_arrray(:, 1), pos_array(:, 2))
-%   xlabel('Time [ms]')
-%   ylabel('Position []')
-%   title('Joint 2 Motion')
-%   
-%   ssubplot(3, 1, 3)
-%   plot(time_arrray(:, 1), pos_array(:, 3))
-%   xlabel('Time [ms]')
-%   ylabel('Position []')
-%   title('Joint 3 Motion')
+  outputMatrix = [time_array pos_array]; %combines matrices into one, with time being in the first column
+  writematrix(outputMatrix, 'Time_Position.csv'); %outputs to .csv file
+  
+  subplot(5, 1, 1) %subplot 1 (top of column)
+  plot(time_array(:, 1), pos_array(:, 1)) %plot time vs first column of position
+  xlabel('Time [ms]') %x axis label
+  ylabel('Position [degrees]') %y axis label
+  title('Joint 1 Motion') %title of subplot
+  
+  subplot(5, 1, 2) %subplot 2 (second row in column), all other lines work same way as the previous subplot
+  plot(time_array(:, 1), pos_array(:, 2))
+  ylim([-25 25]);
+  xlabel('Time [ms]')
+  ylabel('Position [degrees]')
+  title('Joint 2 Motion')
+  
+  subplot(5, 1, 3)
+  plot(time_array(:, 1), pos_array(:, 3))
+  ylim([-25 25]);
+  xlabel('Time [ms]')
+  ylabel('Position [degrees]')
+  title('Joint 3 Motion')
+  
+  subplot(5, 1, 4)
+  histogram(timestep_array);
+  title('Histogram all packets')
+  
+  subplot(5, 1, 5)
+  histogram(constrained_timestep_array);
+  title('Histogram 0-5ms')
   
   
   
