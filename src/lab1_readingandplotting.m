@@ -32,8 +32,8 @@ try
     T = 2; %time in seconds of interpolation
   pp.interpolate_jp([0 0 0], 1000);
   pause(2);
-%   pp.servo_jp([45 0 0]);
-  pp.interpolate_jp([45 0 0], T * 1000);
+  pp.servo_jp([45 0 0]);
+%   pp.interpolate_jp([45 0 0], T * 1000);    
     
 %   pp.interpolate_jp([-89.76 86.14 33.71], T * 1000); %home
 %   pp.interpolate_jp([-48.72 37.9 -5.65], T * 1000); %pose 1
@@ -79,7 +79,7 @@ try
 %   toc
   
   outputMatrix = [time_array pos_array]; %combines matrices into one, with time being in the first column
-  writematrix(outputMatrix, 'Time_Position.csv'); %outputs to .csv file
+  writematrix(outputMatrix, 'Time_Position_Part4_NoInterp3.csv'); %outputs to .csv file
   
   subplot(5, 1, 1) %subplot 1 (top of column)
   plot(time_array(:, 1), pos_array(:, 1)) %plot time vs first column of position
@@ -122,7 +122,14 @@ try
   histogram(constrained_timestep_array);
   title('Histogram 0-5ms')
   
-  
+  disp("Mean of timestep is");
+  disp(mean(timestep_array));
+  disp("Mode of timestep is");
+  disp(mode(timestep_array));
+  disp("Median of timestep is")
+  disp(median(timestep_array));
+  disp("Max of timestep is")
+  disp(max(timestep_array));
   
 catch exception
     getReport(exception)

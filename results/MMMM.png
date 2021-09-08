@@ -1,0 +1,79 @@
+Part 4
+
+Interpolated move 1
+Mean of timestep is
+    0.3891
+
+Mode of timestep is
+    0.3640
+
+Median of timestep is
+    0.3680
+
+Max of timestep is
+   40.5690
+
+Interpolated move 2
+Mean of timestep is
+    0.4062
+
+Mode of timestep is
+    0.3760
+
+Median of timestep is
+    0.3820
+
+Max of timestep is
+   41.3520
+
+Interpolated move 3
+Mean of timestep is
+    0.4071
+
+Mode of timestep is
+    0.3830
+
+Median of timestep is
+    0.3840
+
+Max of timestep is
+   43.4080
+
+Non-interpolated move 1
+Mean of timestep is
+    0.3978
+
+Mode of timestep is
+    0.3750
+
+Median of timestep is
+    0.3770
+
+Max of timestep is
+   41.9680
+
+Non-Interpolated move 2
+Mean of timestep is
+    0.3979
+
+Mode of timestep is
+    0.3750
+
+Median of timestep is
+    0.3800
+
+Max of timestep is
+   40.8510
+
+Non-interpolated move 3
+Mean of timestep is
+    0.4063
+
+Mode of timestep is
+    0.3830
+
+Median of timestep is
+    0.3870
+
+Max of timestep is
+   43.4950
