@@ -172,6 +172,16 @@ classdef Robot < handle
             goal = pp.endMotionSetPos;
         end
         
+        %lab 2 methods
+        %forward kinematics
+        %q = [theta d a alpha]
+        function T = dh2mat(pp, q)
+            T= [cosd(q(1)) -sind(q(1))*cosd(q(4)) sind(q(1))*sind(q(4)) q(3)*cosd(q(1));
+                sind(q(1)) cosd(q(1))*cosd(q(4)) -cosd(q(1))*sind(q(4)) q(3)*sind(q(1));
+                0 sind(q(4)) cosd(q(4)) q(2);
+                0 0 0 1]
+        end
+        
     end
     
 end
