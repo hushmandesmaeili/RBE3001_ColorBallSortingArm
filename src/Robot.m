@@ -179,7 +179,14 @@ classdef Robot < handle
             T= [cosd(q(1)) -sind(q(1))*cosd(q(4)) sind(q(1))*sind(q(4)) q(3)*cosd(q(1));
                 sind(q(1)) cosd(q(1))*cosd(q(4)) -cosd(q(1))*sind(q(4)) q(3)*sind(q(1));
                 0 sind(q(4)) cosd(q(4)) q(2);
-                0 0 0 1]
+                0 0 0 1];
+        end
+        
+        function T = dh2fk(pp, q)
+           T = eye(4);
+           for i = 1:size(q(:,1))
+               T = T * pp.dh2mat(q(i, :));
+           end
         end
         
     end
