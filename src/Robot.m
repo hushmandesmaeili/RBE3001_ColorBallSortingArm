@@ -189,6 +189,20 @@ classdef Robot < handle
            end
         end
         
+        function T = fk3001(jointConfig)        
+            L0 = 55;
+            L1 = 40;
+            L2 = 100;
+            L3 = 100;
+           
+            DH0 = [0 L0 0 0];
+            DH1 = [jointConfig(1) L1 0 -90];
+            DH2 = [jointConfig(2)-90 0 L2 0];
+            DH3 = [jointConfig(3)+90 0 L3 90];
+
+            T = dh2fk([DH0; DH1; DH2; DH3]);           
+        end
+        
     end
     
 end
