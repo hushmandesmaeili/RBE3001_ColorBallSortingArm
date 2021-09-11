@@ -29,7 +29,7 @@ classdef Model < handle
                    0, 0, 1, 55;
                    0, 0, 0, 1];
             
-            T = self.robot.measured_cp(q);
+            T = self.robot.measured_cp();
             
             %Origin
             plot3(0, 0, 0, 'b.')

@@ -24,5 +24,12 @@ myHIDSimplePacketComs.connect();
 pp = Robot(myHIDSimplePacketComs); 
 
 mod = Model(pp);
+try 
+mod.plot_arm([0 0 0]);
+catch exception
+    getReport(exception)
+    disp('Exited on error, clean shutdown');
+end
 
-mod.plot_arm([0 0 0])
+% Clear up memory upon termination
+pp.shutdown()
