@@ -198,6 +198,25 @@ classdef Robot < handle
             
         end
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        % Takes data from goal_js() and returns a 4x4 homogeneous transformation
+        % matrix based upon the commanded end of motion joint set point 
+        % positions in degrees.
+        function T = goal_cp(pp)
+            T = pp.fk3001(pp.goal_js());
+        end
+        
     end
     
 end
