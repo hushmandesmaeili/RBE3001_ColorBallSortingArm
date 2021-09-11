@@ -24,7 +24,8 @@ myHIDSimplePacketComs.connect();
 pp = Robot(myHIDSimplePacketComs); 
 
 try
-    pp.interpolate_jp([45 45 45], 2000);
+    pp.closeGripper();
+    pp.interpolate_jp([0 0 0], 2000);
     pp.goal_cp()
     pause(1)
     pp.goal_cp()
