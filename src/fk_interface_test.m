@@ -25,7 +25,8 @@ pp = Robot(myHIDSimplePacketComs);
 
 try
     pp.closeGripper();
-    pp.interpolate_jp([45 45 45], 1000);
+
+pp.interpolate_jp([45 45 45], 1000);
 %       pp.interpolate_jp([0 0 0], 1000);
 %     pp.servo_jp([0 0 0]);
 %     pp.goal_cp()
@@ -35,6 +36,7 @@ try
 %     pp.goal_cp()
 %     pp.setpoint_cp()
 %     pp.measured_cp()
+
     
 catch exception
     getReport(exception)
