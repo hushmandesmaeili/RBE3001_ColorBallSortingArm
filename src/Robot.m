@@ -198,6 +198,14 @@ classdef Robot < handle
             
         end
         
+        function T = measured_cp(pp)
+        
+            q = pp.measured_js(1, 0);
+            q = q(1, :);
+            T = pp.fk3001(q);
+            
+        end
+        
         %returns HT matrix to get to current location of arm
         function T = setpoint_cp(pp)
             T = pp.fk3001(pp.setpoint_js());
