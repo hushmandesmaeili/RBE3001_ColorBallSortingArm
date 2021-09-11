@@ -25,18 +25,26 @@ pp = Robot(myHIDSimplePacketComs);
 
 try
     %Create empty matrix 10x4x4
-    T = zero(10, 4, 4);
+    T = zeros(10, 4, 4);
+    pp.closeGripper();
+    pp.interpolate_jp([0 0 0], 1000);
+    pause(2);
     
     for n = 1:10
         %Move to non-zero position, then back to zero position
         pp.interpolate_jp([45 45 45], 1000);
         pause(2);
-        pp.interpolate_jp([0 0 0]);
-        pause(2)
+        pp.interpolate_jp([0 0 0], 1000);
+        pause(2);
         
         %Create Transform Matrix
         T(n, :, :) = pp.measured_cp();
+        
     end
+    
+    
+    
+    writematrix(T, 'Home_Position_10_trials2.csv'); %outputs to .csv file
     
 catch exception
     getReport(exception)
