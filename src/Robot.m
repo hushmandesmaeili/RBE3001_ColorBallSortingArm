@@ -198,17 +198,10 @@ classdef Robot < handle
             
         end
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        %returns HT matrix to get to current location of arm
+        function T = setpoint_cp(pp)
+            T = pp.fk3001(pp.setpoint_js());
+        end
         
         % Takes data from goal_js() and returns a 4x4 homogeneous transformation
         % matrix based upon the commanded end of motion joint set point 
