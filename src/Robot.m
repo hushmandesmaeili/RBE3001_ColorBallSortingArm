@@ -201,6 +201,7 @@ classdef Robot < handle
         function T = measured_cp(pp)
         
             q = pp.measured_js(1, 0);
+            q = q(1, :);
             T = pp.fk3001(q);
             
         end
