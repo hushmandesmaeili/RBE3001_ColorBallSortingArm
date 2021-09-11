@@ -200,7 +200,7 @@ classdef Robot < handle
         
         %returns HT matrix to get to current location of arm
         function T = setpoint_cp(pp)
-            T = pp.fk3001(pp.setpoint_jw());
+            T = pp.fk3001(pp.setpoint_js());
         end
         
     end
