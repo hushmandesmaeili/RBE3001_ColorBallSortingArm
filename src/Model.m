@@ -23,41 +23,10 @@ classdef Model < handle
             
             arrowSize = 30; %arrow size for local frames
             
-            L0 = 55;
-            L1 = 40;
-            L2 = 100;
-            L3 = 100;
-            
-            DH0 = [         0  L0  0    0];
-            DH1 = [q(1, 1)     L1  0  -90];
-            DH2 = [q(1, 2)-90   0  L2   0];
-            DH3 = [q(1, 3)+90   0  L3  90];
-            %
-            %             T01 = self.robot.dh2fk([DH0])
-            %             T02 = self.robot.dh2fk([DH0 DH1])
-            %             T03 = self.robot.dh2fk([DH0 DH1 DH2])
-            %             T04 = self.robot.dh2fk([DH0 DH1 DH2 DH3])
-            
-            T00 = [1, 0, 0, 0;
-                   0, 1, 0, 0;
-                   0, 0, 1, 0;
-                   0, 0, 0, 1];
-            
-            T01 = [1, 0, 0, 0;
-                   0, 1, 0, 0;
-                   0, 0, 1, 55;
-                   0, 0, 0, 1];
-            
-            T02 = [cos((pi*q(1, 1))/180),  0, -sin((pi*q(1, 1))/180),  0;
-                   sin((pi*q(1, 1))/180),  0,  cos((pi*q(1, 1))/180),  0;
-                   0, -1,                      0, 95;
-                   0, 0, 0, 1];
-            
-            T03 = [cos((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180), -cos((pi*q(1, 1))/180)*sin((pi*(q(1, 2) - 90))/180), -sin((pi*q(1, 1))/180), 100*cos((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180);
-                   sin((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180), -sin((pi*q(1, 1))/180)*sin((pi*(q(1, 2) - 90))/180),  cos((pi*q(1, 1))/180), 100*sin((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180);
-                   -sin((pi*(q(1, 2) - 90))/180),                       -cos((pi*(q(1, 2) - 90))/180),                      0,                  95 - 100*sin((pi*(q(1, 2) - 90))/180);
-                   0, 0, 0, 1];
-            
+            T00 = self.robot.T00();
+            T01 = self.robot.T01();
+            T02 = self.robot.T02(q);
+            T03 = self.robot.T03(q);
             T04 = self.robot.fk3001(q);
             
             %x, y, and z coordinates of base and joints and end effector
@@ -82,6 +51,8 @@ classdef Model < handle
             self.frame.showFrame(T02, arrowSize);
             self.frame.showFrame(T03, arrowSize);
             self.frame.showFrame(T04, arrowSize);
+            
+            hold off
         end
         
     end
