@@ -29,15 +29,18 @@ frame = Frame3D();
 mod = Model(pp, frame);
 
 try 
+    pp.closeGripper();
     close all;
     tic
     
-    %While loop ran for 60 seconds
+    %While loop runs for 60 seconds
+    %Improvement note: Make non-blocking code, without while loop
     while (toc < 60)
-        q = measured_js(1,0);
+        q = pp.measured_js(1,0);
         q = q(1,:);
         mod.plot_arm(q);
-        drawnow limirate;
+        drawnow;
+        pause(0.05);
     end
 %     mod.plot_arm([0 0 0]);
     
