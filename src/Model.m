@@ -43,6 +43,7 @@ classdef Model < handle
             xlabel('x position')
             ylabel('y position')
             zlabel('z position')
+            view(135, 25);  %Adjusts the plots default view, for better visualization
             
             % Frames 0 to Frame 4 shown on plot
             % Using Frame3D object
