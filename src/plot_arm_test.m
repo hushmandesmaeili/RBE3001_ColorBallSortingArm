@@ -23,11 +23,15 @@ myHIDSimplePacketComs.connect();
 % Create a PacketProcessor object to send data to the nucleo firmware
 pp = Robot(myHIDSimplePacketComs); 
 
-mod = Model(pp);
+% Creates Frame3D object
+frame = Frame3D();
+
+mod = Model(pp, frame);
 
 try 
     close all;
-mod.plot_arm([45 45 45]);
+    mod.plot_arm([0 0 0]);
+    
 catch exception
     getReport(exception)
     disp('Exited on error, clean shutdown');
