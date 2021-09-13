@@ -36,7 +36,7 @@ try
     c = 1;
     %While loop runs for 60 seconds
     %Improvement note: Make non-blocking code, without while loop
-    while (toc < 7)
+    while (toc < 1)
         g = floor(toc)
         disp(c)
         if floor(toc) > c
@@ -44,15 +44,24 @@ try
         end
         
         if c == 1
-            pp.interpolate_jp([45 45 45], 1000);
+            pp.servo_jp([45 45 45]);
+            writematrix(pp.fk3001([45 45 45]), "part7Matrices.csv");
         elseif c == 2
-            pp.interpolate_jp([0 0 0], 1000);
+            pp.servo_jp([0 0 0]);
+            G = readmatrix("part7Matrices.csv");
+            writematrix([G pp.fk3001([0 0 0])], "part7Matrices.csv");
         elseif c == 3
-            pp.interpolate_jp([0 -10 0], 1000);
+            pp.servo_jp([0 -10 0]);
+            G = readmatrix("part7Matrices.csv");
+            writematrix([G pp.fk3001([0 -10 0])], "part7Matrices.csv");
         elseif c == 4
-            pp.interpolate_jp([-20 0 0], 1000);
+            pp.servo_jp([-20 0 0]);
+            G = readmatrix("part7Matrices.csv");
+            writematrix([G pp.fk3001([-20 0 0])], "part7Matrices.csv");
         elseif c == 5
-            pp.interpolate_jp([35 0 30], 1000);
+            pp.servo_jp([35 0 30]);
+            G = readmatrix("part7Matrices.csv");
+            writematrix([G pp.fk3001([30 0 30])], "part7Matrices.csv");
         end
         q = pp.measured_js(1,0);
         q = q(1,:);

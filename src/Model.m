@@ -39,7 +39,7 @@ classdef Model < handle
             grid on;
             xlim([-250 250]);
             ylim([-250 250]);
-            zlim([-250 250]);
+            zlim([-10 250]);
             xlabel('x position')
             ylabel('y position')
             zlabel('z position')
