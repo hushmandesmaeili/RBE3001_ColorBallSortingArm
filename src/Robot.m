@@ -218,6 +218,11 @@ classdef Robot < handle
             T = pp.fk3001(pp.goal_js());
         end
         
+        %takes in rotation values and returns x,y,z coordinates of T01
+        function T = T01(q)
+            
+        end
+        
     end
     
 end
