@@ -28,10 +28,12 @@ myHIDSimplePacketComs.connect();
 % Create a PacketProcessor object to send data to the nucleo firmware
 pp = Robot(myHIDSimplePacketComs); 
 try
-  
+  pp.servo_jp([0 0 0]);
   pp.closeGripper()
-  disp('Measured:')
-  pp.measured_js(1,0)
+  while(1)
+      disp('Measured:')
+      pp.measured_js(1,0)
+  end
   
 catch exception
     getReport(exception)
