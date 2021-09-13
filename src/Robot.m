@@ -253,6 +253,11 @@ classdef Robot < handle
             T = pp.fk3001(pp.goal_js());
         end
         
+        function T = position(pp, q)
+            T = pp.fk3001(q);
+            T = T(1:3, 4)';
+        end
+        
         
     end
     
