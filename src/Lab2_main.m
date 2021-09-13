@@ -33,14 +33,31 @@ try
     close all;
     tic
     
+    c = 1;
     %While loop runs for 60 seconds
     %Improvement note: Make non-blocking code, without while loop
-    while (toc < 60)
+    while (toc < 7)
+        g = floor(toc)
+        disp(c)
+        if floor(toc) > c
+            c = c + 1;
+        end
+        
+        if c == 1
+            pp.interpolate_jp([45 45 45], 1000);
+        elseif c == 2
+            pp.interpolate_jp([0 0 0], 1000);
+        elseif c == 3
+            pp.interpolate_jp([0 -10 0], 1000);
+        elseif c == 4
+            pp.interpolate_jp([-20 0 0], 1000);
+        elseif c == 5
+            pp.interpolate_jp([35 0 30], 1000);
+        end
         q = pp.measured_js(1,0);
         q = q(1,:);
         mod.plot_arm(q);
         drawnow;
-        pause(0.05);
     end
 %     mod.plot_arm([0 0 0]);
     

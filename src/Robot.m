@@ -124,7 +124,7 @@ classdef Robot < handle
 
         % Takes a 1x3 array joint values and interpolation time in ms
         function interpolate_jp(pp, q, t)
-            tic
+%             tic
             SERV_ID = 1848;
             packet = zeros(15, 1, 'single');
             packet(1) = t;
@@ -136,7 +136,7 @@ classdef Robot < handle
             pp.endMotionSetPos = q;
 
             pp.write(SERV_ID, packet);
-            toc
+%             toc
 
         end
         
