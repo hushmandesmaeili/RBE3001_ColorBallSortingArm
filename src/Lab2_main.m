@@ -32,11 +32,11 @@ try
     pp.closeGripper();
     close all;
     tic
-    
+    T = zeros(5, 4, 4);
     c = 1;
     %While loop runs for 60 seconds
     %Improvement note: Make non-blocking code, without while loop
-    while (toc < 1)
+    while (toc < 7)
         g = floor(toc)
         disp(c)
         if floor(toc) > c
@@ -45,28 +45,25 @@ try
         
         if c == 1
             pp.servo_jp([45 45 45]);
-            writematrix(pp.fk3001([45 45 45]), "part7Matrices.csv");
+            T(c,:,:) = pp.fk3001([45 45 45]);
         elseif c == 2
             pp.servo_jp([0 0 0]);
-            G = readmatrix("part7Matrices.csv");
-            writematrix([G pp.fk3001([0 0 0])], "part7Matrices.csv");
+            T(c,:,:) = pp.fk3001([0 0 0]);
         elseif c == 3
             pp.servo_jp([0 -10 0]);
-            G = readmatrix("part7Matrices.csv");
-            writematrix([G pp.fk3001([0 -10 0])], "part7Matrices.csv");
+            T(c,:,:) = pp.fk3001([0 -10 0]);
         elseif c == 4
             pp.servo_jp([-20 0 0]);
-            G = readmatrix("part7Matrices.csv");
-            writematrix([G pp.fk3001([-20 0 0])], "part7Matrices.csv");
+            T(c,:,:) = pp.fk3001([-20 0 0]);
         elseif c == 5
             pp.servo_jp([35 0 30]);
-            G = readmatrix("part7Matrices.csv");
-            writematrix([G pp.fk3001([30 0 30])], "part7Matrices.csv");
+            T(c,:,:) = pp.fk3001([35 0 30]);
         end
         q = pp.measured_js(1,0);
         q = q(1,:);
         mod.plot_arm(q);
         drawnow;
+        writematrix(T, "part7Matrices.csv");
     end
 %     mod.plot_arm([0 0 0]);
     
