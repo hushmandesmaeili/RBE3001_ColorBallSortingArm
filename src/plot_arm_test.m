@@ -1,8 +1,3 @@
-%%
-% RBE3001 - Laboratory 1 
-
-% Lines 15-37 perform necessary library initializations. You can skip reading
-% to line 38.
 clear
 clear java
 clear classes;
@@ -27,14 +22,16 @@ myHIDSimplePacketComs.connect();
 
 % Create a PacketProcessor object to send data to the nucleo firmware
 pp = Robot(myHIDSimplePacketComs); 
-try
-  pp.servo_jp([0 0 0]);
-  pp.closeGripper()
-  while(1)
-      disp('Measured:')
-      pp.measured_js(1,0)
-  end
-  
+
+% Creates Frame3D object
+frame = Frame3D();
+
+mod = Model(pp, frame);
+
+try 
+    close all;
+    mod.plot_arm([0 0 0]);
+    
 catch exception
     getReport(exception)
     disp('Exited on error, clean shutdown');
@@ -42,5 +39,3 @@ end
 
 % Clear up memory upon termination
 pp.shutdown()
-
-

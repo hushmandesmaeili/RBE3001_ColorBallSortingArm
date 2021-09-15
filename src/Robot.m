@@ -5,6 +5,10 @@ classdef Robot < handle
         pol; 
         GRIPPER_ID = 1962;
         endMotionSetPos;
+%         L0 = 55;    %Length of Link 0
+%         L1 = 40;    %Length of Link 1
+%         L2 = 100;   %Length of Link 2
+%         L3 = 100;   %Length of Link 3
     end
     
     methods
@@ -120,7 +124,7 @@ classdef Robot < handle
 
         % Takes a 1x3 array joint values and interpolation time in ms
         function interpolate_jp(pp, q, t)
-            tic
+%             tic
             SERV_ID = 1848;
             packet = zeros(15, 1, 'single');
             packet(1) = t;
@@ -132,7 +136,7 @@ classdef Robot < handle
             pp.endMotionSetPos = q;
 
             pp.write(SERV_ID, packet);
-            toc
+%             toc
 
         end
         
@@ -189,6 +193,7 @@ classdef Robot < handle
            end
         end
         
+        %Returns T04 HT matrix
         function T = fk3001(pp, jointConfig)
             
             T = [cos((pi*jointConfig(1))/180)*cos((pi*(jointConfig(2) - 90))/180)*cos((pi*(jointConfig(3) + 90))/180) - cos((pi*jointConfig(1))/180)*sin((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180), -sin((pi*jointConfig(1))/180), cos((pi*jointConfig(1))/180)*cos((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180) + cos((pi*jointConfig(1))/180)*cos((pi*(jointConfig(3) + 90))/180)*sin((pi*(jointConfig(2) - 90))/180), 100*cos((pi*jointConfig(1))/180)*cos((pi*(jointConfig(2) - 90))/180) + 100*cos((pi*jointConfig(1))/180)*cos((pi*(jointConfig(2) - 90))/180)*cos((pi*(jointConfig(3) + 90))/180) - 100*cos((pi*jointConfig(1))/180)*sin((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180);
@@ -196,6 +201,36 @@ classdef Robot < handle
                 - cos((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180) - cos((pi*(jointConfig(3) + 90))/180)*sin((pi*(jointConfig(2) - 90))/180),                      0,                                             cos((pi*(jointConfig(2) - 90))/180)*cos((pi*(jointConfig(3) + 90))/180) - sin((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180),                                                              95 - 100*cos((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180) - 100*cos((pi*(jointConfig(3) + 90))/180)*sin((pi*(jointConfig(2) - 90))/180) - 100*sin((pi*(jointConfig(2) - 90))/180);
                 0, 0, 0, 1];          
             
+        end
+        
+        %Returns T00 HT matrix given joint configuration
+        function T = T00(pp, q)
+            T = eye(4,4);
+        end
+        
+        %Returns T01 HT matrix given joint configuration
+        function T = T01(pp, q)
+            T = [1, 0, 0, 0;
+                 0, 1, 0, 0;
+                 0, 0, 1, 55;
+                 0, 0, 0, 1];
+
+        end
+        
+        %Returns T02 HT matrix given joint configuration
+        function T = T02(pp, q)
+            T = [cos((pi*q(1, 1))/180),  0, -sin((pi*q(1, 1))/180),  0;
+                   sin((pi*q(1, 1))/180),  0,  cos((pi*q(1, 1))/180),  0;
+                   0, -1,                      0, 95;
+                   0, 0, 0, 1];
+        end
+        
+        %Returns T03 HT matrix given joint configuration
+        function T = T03(pp, q)
+            T = [cos((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180), -cos((pi*q(1, 1))/180)*sin((pi*(q(1, 2) - 90))/180), -sin((pi*q(1, 1))/180), 100*cos((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180);
+                   sin((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180), -sin((pi*q(1, 1))/180)*sin((pi*(q(1, 2) - 90))/180),  cos((pi*q(1, 1))/180), 100*sin((pi*q(1, 1))/180)*cos((pi*(q(1, 2) - 90))/180);
+                   -sin((pi*(q(1, 2) - 90))/180),                       -cos((pi*(q(1, 2) - 90))/180),                      0,                  95 - 100*sin((pi*(q(1, 2) - 90))/180);
+                   0, 0, 0, 1];
         end
         
         function T = measured_cp(pp)
@@ -217,6 +252,12 @@ classdef Robot < handle
         function T = goal_cp(pp)
             T = pp.fk3001(pp.goal_js());
         end
+        
+        function T = position(pp, q)
+            T = pp.fk3001(q);
+            T = T(1:3, 4)';
+        end
+        
         
     end
     
