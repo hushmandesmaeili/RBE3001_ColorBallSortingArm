@@ -235,11 +235,13 @@ classdef Robot < handle
         
         %Takes data from measured_js() and returns a 4x4 homogeneous transformation
         %matrix based upon the current joint positions in degrees.
+ 
         function T = measured_cp(pp)
         
             q = pp.measured_js(1, 0);
             q = q(1, :);
             T = pp.fk3001(q);
+            
         end
         
         %Returns HT matrix to get to current location of arm
