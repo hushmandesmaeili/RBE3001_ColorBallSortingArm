@@ -5,10 +5,19 @@ classdef Robot < handle
         pol; 
         GRIPPER_ID = 1962;
         endMotionSetPos;
-%         L0 = 55;    %Length of Link 0
-%         L1 = 40;    %Length of Link 1
-%         L2 = 100;   %Length of Link 2
-%         L3 = 100;   %Length of Link 3
+        L0 = 55;    %Length of Link 0
+        L1 = 40;    %Length of Link 1
+        L2 = 100;   %Length of Link 2
+        L3 = 100;   %Length of Link 3
+        
+        %1min, 1max; 2min 2max; 3min 3max;
+        qlimdeg = [-90 90;
+                -45 100;
+                -90 63]; 
+            
+        qlim = deg2rad([-90 90;
+                        -45 100;
+                        -90 63]);
     end
     
     methods
@@ -44,7 +53,7 @@ classdef Robot < handle
                        com(i)= ret(i).floatValue();
                     end
                 catch exception
-                    getReport(exception)
+                    getReportheta1t(exception)
                     disp('Command error, reading too fast');
                 end
         end
@@ -139,7 +148,7 @@ classdef Robot < handle
 %             toc
 
         end
-        
+        theta1
         % Takes two bool values, GETPOS and GETVEL. Returns only requested
         % date, and set rest to zero. 
         % Returns a 1x3 array that contains current joint positions in
@@ -201,6 +210,101 @@ classdef Robot < handle
                 - cos((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180) - cos((pi*(jointConfig(3) + 90))/180)*sin((pi*(jointConfig(2) - 90))/180),                      0,                                             cos((pi*(jointConfig(2) - 90))/180)*cos((pi*(jointConfig(3) + 90))/180) - sin((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180),                                                              95 - 100*cos((pi*(jointConfig(2) - 90))/180)*sin((pi*(jointConfig(3) + 90))/180) - 100*cos((pi*(jointConfig(3) + 90))/180)*sin((pi*(jointConfig(2) - 90))/180) - 100*sin((pi*(jointConfig(2) - 90))/180);
                 0, 0, 0, 1];          
             
+        end
+        
+        %calculates task space based on joint angles
+        %task space vector is [px, py, pz]
+        function T = ik3001(self, ts)
+            T = [NaN NaN NaN];
+            
+            theta1_1 = atan2(sqrt(1-(ts(1)/sqrt(ts(1)^2 + ts(2)^2))^2), (ts(1)/sqrt(ts(1)^2 + ts(2)^2)));
+            theta1_2 = atan2(-sqrt(1-(ts(1)/sqrt(ts(1)^2 + ts(2)^2))^2), (ts(1)/sqrt(ts(1)^2 + ts(2)^2)));
+            
+            if theta1_1 > self.qlim(1, 1) && theta1_1 < self.qlim(1, 2)
+               theta1 = theta1_1;
+            elseif theta1_2 > self.qlim(1, 1) && theta1_2 < self.qlim(1, 2)
+                theta1 = theta1_2;
+            else
+                error("theta 1 out of bounds");
+            end
+            
+            d_1 = sqrt(ts(1)^2 + ts(2)^2 + (ts(3) - self.L1 - self.L0)^2);
+            D_3 = (self.L3^2 + self.L2^2 - d_1^2)/(2*self.L2*self.L3);
+            theta3_1 = atan2(D_3, sqrt(1-D_3^2));
+            theta3_2 = atan2(D_3, -sqrt(1-D_3^2));
+            
+            D_2_1 = (self.L3*cos(theta3_1))/d_1;
+            D_2_2 = (self.L3*cos(theta3_2))/d_1;
+            a1_1 = atan2(D_2_1, sqrt(1-D_2_1^2));
+            a1_2 = atan2(D_2_2, sqrt(1-D_2_2^2));
+            %theoretical but unnecessary solutions
+%             a1_3 = atan2(D_2_1, -sqrt(1-D_2_1^2));
+%             a1_4 = atan2(D_2_2, -sqrt(1-D_2_2^2));
+            
+            a2 = atan2((ts(3) - self.L0 - self.L1), sqrt(ts(1)^2 + ts(2)^2));
+            theta2_1 = pi/2 - a2 - a1_1;
+            theta2_2 = pi/2 - a2 - a1_2;
+%             theta2_3 = pi/2 - a2 - a1_3;
+%             theta2_4 = pi/2 - a2 - a1_4;
+            
+%             theta = int16.empty(3,4);
+%             theta(1,1) = theta1;
+%             theta(2,1:4) = [theta2_1 theta2_2 theta2_3 theta2_4];
+%             theta(3,1:2) = [
+            
+            theta = [theta1 NaN;
+                    theta2_1 theta2_2;
+                    theta3_1 theta3_2];
+                
+            %if values are out of bounds, remove them from array
+            for i = 1:2
+                if (theta(2, i) < self.qlim(2, 1)) || (theta(2, i) > self.qlim(2, 2))
+                   theta(2, i) = NaN;
+                end
+            end
+            
+            for i = 1:2
+                if (theta(3, i) < self.qlim(3, 1)) || (theta(3, i) > self.qlim(3, 2))
+                   theta(3, i) = NaN;
+                end
+            end
+            
+            %if corresponding theta2 value is impossible, corresponding 3
+            %values cannot be either
+            if isnan(theta(2, 1)) 
+               theta(3, 1) = NaN;
+            end
+            
+            if isnan(theta(2, 2))
+               theta(3, 2) = NaN;
+            end
+            
+            %if corresponding theta 3 value is impossible, corresping
+            %theta2 value cannot be either
+            if isnan(theta(3, 1))
+               theta(2, 1) = NaN;
+%                theta(2, 3) = NaN;
+            end
+            
+            if isnan(theta(3, 2))
+               theta(2, 2) = NaN;
+%                theta(2, 4) = NaN;
+            end
+            
+            for i = 1:3
+                for j = 1:2
+                    if ~isnan(theta(i, j))
+                       T(1, i) = theta(i, j);
+                    end
+                end
+            end
+            
+            for i = 1:3
+               if isnan(T(i))
+                   error("joint values out of bounds");
+               end
+            end
+            disp(theta);
         end
         
         %Returns T00 HT matrix given joint configuration
