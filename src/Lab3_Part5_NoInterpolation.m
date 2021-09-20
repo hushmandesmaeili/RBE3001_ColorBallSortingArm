@@ -36,22 +36,22 @@ q = [0; 0; 0; 0];
 
 
 try
-        q(1) = ik3001(p(1));
-        q(2) = ik3001(p(2));
-        q(3) = ik3001(p(3));
-        q(4) = ik3001(p(4));
+        q(1) = pp.ik3001(p(1));
+        q(2) = pp.ik3001(p(2));
+        q(3) = pp.ik3001(p(3));
+        q(4) = pp.ik3001(p(4));
         trajPlanner = Traj_Planner(q);
         
         c = 1;
+        pp.servo_jp(q(1));
+        pause(2);
+        tic
         
         while (c < 5)
-            currentPos = pp.measured_js()
-            if (currentPos(1:3, 4) == 
+            currentPos = pp.measured_js();
+            if (round(currentPos(1, 1:3), 3) == round(q(c), 3))
                 c = c + 1;
-            end
-        
-            if c == 1
-                pp.servo_jp(
+                toc
             end
             
             if c == 2
@@ -61,17 +61,18 @@ try
             elseif c == 4
                 pp.servo_jp(q1);
             end
+            
         end
         
-        tic
-        pp.servo_jp(q(1));
-        toc
-        pp.servo_jp(q(2));
-        toc
-        pp.servo_jp(q(3));
-        toc
-        pp.servo_jp(q(4));
-        toc
+%         tic
+%         pp.servo_jp(q(1));
+%         toc
+%         pp.servo_jp(q(2));
+%         toc
+%         pp.servo_jp(q(3));
+%         toc
+%         pp.servo_jp(q(4));
+%         toc
     
 catch exception
     getReport(exception)

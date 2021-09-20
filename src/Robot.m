@@ -148,7 +148,7 @@ classdef Robot < handle
 %             toc
 
         end
-        theta1
+        
         % Takes two bool values, GETPOS and GETVEL. Returns only requested
         % date, and set rest to zero. 
         % Returns a 1x3 array that contains current joint positions in
