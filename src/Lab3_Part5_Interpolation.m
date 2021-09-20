@@ -28,23 +28,23 @@ pp = Robot(myHIDSimplePacketComs);
 
 % mod = Model(pp, frame);
 
-p1 = [0 0 0];
-p2 = [0 0 0];
-p3 = [0 0 0];
-p = [p1; p2; p3; p1];
-q = [0; 0; 0; 0];
+p1 = [100; 0; 195];
+p2 = [50; 0; 150];
+p3 = [60; 60; 60];
+p = [p1 p2 p3 p1];
+q = zeros(4,3);
 
 t0 = 0;
-tf = 0.3;
+tf = 2.4;
 v0 = 0;
 vf = 0;
 
 try
-        q(1) = pp.ik3001(p(1));
-        q(2) = pp.ik3001(p(2));
-        q(3) = pp.ik3001(p(3));
-        q(4) = pp.ik3001(p(4));
-        trajPlan = Traj_Planner(q);
+        q(1, :) = pp.ik3001(p(:, 1));
+        q(2, :) = pp.ik3001(p(:, 2));
+        q(3, :) = pp.ik3001(p(:, 3));
+        q(4, :) = pp.ik3001(p(:, 4));
+%         trajPlan = Traj_Planner(q);
         
         %Point 1 --> Point 2
         

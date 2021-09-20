@@ -28,38 +28,46 @@ pp = Robot(myHIDSimplePacketComs);
 
 % mod = Model(pp, frame);
 
-p1 = [0 0 0];
-p2 = [0 0 0];
-p3 = [0 0 0];
-p = [p1; p2; p3; p1];
-q = [0; 0; 0; 0];
+pp.closeGripper();
+
+BOUND = 1.7;
+
+p1 = [100; 0; 195];
+p2 = [50; 0; 150];
+p3 = [60; 60; 60];
+p = [p1 p2 p3 p1];
+q = zeros(4,3);
 
 
 try
-        q(1) = pp.ik3001(p(1));
-        q(2) = pp.ik3001(p(2));
-        q(3) = pp.ik3001(p(3));
-        q(4) = pp.ik3001(p(4));
-        trajPlanner = Traj_Planner(q);
+        
+        q(1, :) = pp.ik3001(p(:, 1));
+        q(2, :) = pp.ik3001(p(:, 2));
+        q(3, :) = pp.ik3001(p(:, 3));
+        q(4, :) = pp.ik3001(p(:, 4));
+%         trajPlanner = Traj_Planner(q);
         
         c = 1;
-        pp.servo_jp(q(1));
+        pp.servo_jp(q(1, :));
         pause(2);
         tic
         
         while (c < 5)
-            currentPos = pp.measured_js();
-            if (round(currentPos(1, 1:3), 3) == round(q(c), 3))
+            currentJointConfig = pp.measured_js(1, 0);
+            if (abs(q(c, 1) - currentJointConfig(1, 1)) <= BOUND && abs(q(c, 2) - currentJointConfig(1, 2)) <= BOUND && abs(q(c, 3) - currentJointConfig(1, 3)) <= BOUND)
+                if (c ~= 1)
+%                     toc
+                    currentJointConfig = pp.measured_js(1, 0);
+                end
                 c = c + 1;
-                toc
             end
             
             if c == 2
-                pp.servo_jp(q2);
+                pp.servo_jp(q(2, :));
             elseif c == 3
-                pp.servo_jp(q3);
+                pp.servo_jp(q(3, :));
             elseif c == 4
-                pp.servo_jp(q1);
+                pp.servo_jp(q(4, :));
             end
             
         end

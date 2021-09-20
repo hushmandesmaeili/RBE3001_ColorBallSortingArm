@@ -25,15 +25,14 @@ pp = Robot(myHIDSimplePacketComs);
 
 try
     %Create empty matrix 10x4x4
-    pp.closeGripper();
-    pp.interpolate_jp([0 0 0], 1000);
-    pause(2);
+%     pp.closeGripper();
+%     pp.interpolate_jp([0 0 0], 1000);
+%     pause(2);
     
-    q = [45 45 45];
-    T = pp.fk3001(q);
-    disp(T);
+    q = [-50 0 -44];
+    T = pp.fk3001(q)
+%     disp(T);
     ik = pp.ik3001(T(1:3, 4))
-    deg2rad(q)
         
     
 catch exception
