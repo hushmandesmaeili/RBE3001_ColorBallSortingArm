@@ -142,41 +142,6 @@ try
         xlabel('Time (s)')
         ylabel('End Effector Acceleration (mm/s^2)')
         hold off
-        
-        
-%         %Point 1 --> Point 2 --> Point 3 --> Point 1
-%         
-%         for x = 1:3
-%             
-%             t = linspace(t0, tf, NUM_POINTS);
-%         
-%             joints_setpoints = zeros(NUM_POINTS, 3);
-%             
-%             if x == 3
-%                 %a coefficients for joint 1, 2 and 3.
-%                 A_J1 = trajPlan.cubic_traj(t0, tf, q(i, 1), q(i+1, 1), v0, vf);
-%                 A_J2 = trajPlan.cubic_traj(t0, tf, q(i, 2), q(i+1, 2), v0, vf);
-%                 A_J3 = trajPlan.cubic_traj(t0, tf, q(i, 3), q(i+1, 3), v0, vf);
-%                 
-%             else
-%                 %a coefficients for joint 1, 2 and 3.
-%                 A_J1 = trajPlan.cubic_traj(t0, tf, q(i, 1), q(1, 1), v0, vf);
-%                 A_J2 = trajPlan.cubic_traj(t0, tf, q(i, 2), q(1, 2), v0, vf);
-%                 A_J3 = trajPlan.cubic_traj(t0, tf, q(i, 3), q(1, 3), v0, vf);
-%             end
-% 
-%             %Generate intermediate joint space configurations using  
-%             %cubic interpolation calculation at 10 time steps for one edge
-%             for i = 1:10
-%                 joints_setpoints(i, 1:3) = [1 t(i) t(i)^2 t(i)^3]*[A_J1 A_J2 A_J3];
-%             end
-% 
-%             %Send to the robot joint set points 
-%             for i = 1:10
-%                 servo_jp(joints_setpoints(i, :));
-%             end
-% 
-%         end
     
 catch exception
     getReport(exception)

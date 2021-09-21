@@ -29,7 +29,7 @@ pp = Robot(myHIDSimplePacketComs);
 % mod = Model(pp, frame);
 close all;
 
-% pp.closeGripper();
+pp.closeGripper();
 
 p1 = [45; 54; 24];
 p2 = [100; 0; 195];
@@ -108,19 +108,19 @@ try
             end  
         end  
         
-%         %Send to the robot joint set points
-%         c = 0;
-%         pp.servo_jp(joints_setpoints(1, 1:3));
-%         c = c + 1;
-%         while (c <= length(T))
-%             currentPos = pp.measured_js(1, 0);
-%             if (abs(joints_setpoints(c, 1) - currentPos(1, 1)) <= BOUND && abs(joints_setpoints(c, 2) - currentPos(1, 2)) <= BOUND && abs(joints_setpoints(c, 3) - currentPos(1, 3)) <= BOUND)
-%                 c = c + 1;
-%                 if (c  <= length(T))
-%                     pp.servo_jp(joints_setpoints(c, 1:3));
-%                 end
-%             end
-%         end
+        %Send to the robot joint set points
+        c = 0;
+        pp.servo_jp(joints_setpoints(1, 1:3));
+        c = c + 1;
+        while (c <= length(T))
+            currentPos = pp.measured_js(1, 0);
+            if (abs(joints_setpoints(c, 1) - currentPos(1, 1)) <= BOUND && abs(joints_setpoints(c, 2) - currentPos(1, 2)) <= BOUND && abs(joints_setpoints(c, 3) - currentPos(1, 3)) <= BOUND)
+                c = c + 1;
+                if (c  <= length(T))
+                    pp.servo_jp(joints_setpoints(c, 1:3));
+                end
+            end
+        end
         
         %Plot of Tip position vs Time
         subplot(3, 1, 1)
