@@ -267,10 +267,9 @@ classdef Robot < handle
 %                     theta2_1 theta2_2;
 %                     theta3_1 theta3_2];
 
-            disp("table");
             theta = [theta1 NaN;
                     theta2_1 theta2_2;
-                    theta3_1 theta3_2]
+                    theta3_1 theta3_2];
 
             %if values are out of bounds, remove them from array
             for i = 1:2

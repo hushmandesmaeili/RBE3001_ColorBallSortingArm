@@ -8,11 +8,11 @@ classdef Traj_Planner
     
     methods
         
-        function self = Traj_Planner(viaPoints)
+        function self = Traj_Planner()
             %Traj_Planner Construct an instance of this class
             %   Detailed explanation goes here
             
-            self = viaPoints;
+%             self = viaPoints;
         end
         
         %Solves for a cubic polynomial trajectory between two via-points

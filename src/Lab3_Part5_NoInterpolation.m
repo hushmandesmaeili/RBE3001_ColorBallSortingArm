@@ -32,9 +32,9 @@ pp.closeGripper();
 
 BOUND = 1.7;
 
-p1 = [100; 0; 195];
-p2 = [50; 0; 150];
-p3 = [60; 60; 60];
+p1 = [45; 54; 24];
+p2 = [100; 0; 195];
+p3 = [41; -113; 111];
 p = [p1 p2 p3 p1];
 q = zeros(4,3);
 
@@ -56,7 +56,7 @@ try
             currentJointConfig = pp.measured_js(1, 0);
             if (abs(q(c, 1) - currentJointConfig(1, 1)) <= BOUND && abs(q(c, 2) - currentJointConfig(1, 2)) <= BOUND && abs(q(c, 3) - currentJointConfig(1, 3)) <= BOUND)
                 if (c ~= 1)
-%                     toc
+                    toc
                     currentJointConfig = pp.measured_js(1, 0);
                 end
                 c = c + 1;
