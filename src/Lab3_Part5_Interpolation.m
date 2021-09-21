@@ -29,7 +29,7 @@ pp = Robot(myHIDSimplePacketComs);
 % mod = Model(pp, frame);
 close all;
 
-pp.closeGripper();
+% pp.closeGripper();
 
 p1 = [45; 54; 24];
 p2 = [100; 0; 195];
@@ -71,9 +71,13 @@ try
         EE_Acc = zeros(1,3);
         
         %Generate intermediate joint space configurations using  
-        %cubic interpolation calculation at than 10 time steps for one edge
+        %cubic interpolation calculation at NUM_POINTS time steps for one edge
+        joints_setpoints = trajPlan.genJointSetpoints(t, A_J1, A_J2, A_J3);
+        
+        %Generate intermediate task space configurations and deriving  
+        %velocity and acceleration for EE from EE position
         for i = 1:NUM_POINTS
-            joints_setpoints(i, 1:3) = [1 t(i) t(i)^2 t(i)^3]*[A_J1 A_J2 A_J3];
+%             joints_setpoints(i, 1:3) = [1 t(i) t(i)^2 t(i)^3]*[A_J1 A_J2 A_J3];
             EE_Pos(i, 1:3) = pp.position(joints_setpoints(i, 1:3));
             
             if (i ~= 1)
@@ -83,25 +87,24 @@ try
             else
                 EE_Vel(i, 1:3) = 0;
                 EE_Acc(i, 1:3) = 0;
-            end
-                
-            
-            
+            end  
         end
         
-        %Send to the robot joint set points
-        c = 0;
-        pp.servo_jp(joints_setpoints(1, 1:3));
-        c = c + 1;
-        while (c <= NUM_POINTS)
-            currentPos = pp.measured_js(1, 0);
-            if (abs(joints_setpoints(c, 1) - currentPos(1, 1)) <= BOUND && abs(joints_setpoints(c, 2) - currentPos(1, 2)) <= BOUND && abs(joints_setpoints(c, 3) - currentPos(1, 3)) <= BOUND)
-                c = c + 1;
-                if (c  <= NUM_POINTS)
-                    pp.servo_jp(joints_setpoints(c, 1:3));
-                end
-            end
-        end
+        
+        
+%         %Send to the robot joint set points
+%         c = 0;
+%         pp.servo_jp(joints_setpoints(1, 1:3));
+%         c = c + 1;
+%         while (c <= NUM_POINTS)
+%             currentPos = pp.measured_js(1, 0);
+%             if (abs(joints_setpoints(c, 1) - currentPos(1, 1)) <= BOUND && abs(joints_setpoints(c, 2) - currentPos(1, 2)) <= BOUND && abs(joints_setpoints(c, 3) - currentPos(1, 3)) <= BOUND)
+%                 c = c + 1;
+%                 if (c  <= NUM_POINTS)
+%                     pp.servo_jp(joints_setpoints(c, 1:3));
+%                 end
+%             end
+%         end
         
         disp("hi")
         %Plot of Tip position vs Time

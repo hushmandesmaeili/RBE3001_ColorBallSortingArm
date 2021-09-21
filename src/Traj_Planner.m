@@ -33,8 +33,13 @@ classdef Traj_Planner
             A = M\constraints;
         end
         
-        function self = setViaPoints(self, vp)
-            self.viaPoints = vp;
+        function jointsSetpoints = genJointSetpoints(self, t, A_J1, A_J2, A_J3)
+            
+            jointsSetpoints = zeros(1, 3);
+            
+            for i = 1:length(t)
+                jointsSetpoints(i, 1:3) = [1 t(i) t(i)^2 t(i)^3]*[A_J1 A_J2 A_J3];
+            end
         end
     end
 end
