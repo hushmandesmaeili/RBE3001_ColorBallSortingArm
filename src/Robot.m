@@ -216,16 +216,12 @@ classdef Robot < handle
         %task space vector is [px, py, pz]
         function T = ik3001(self, ts)
             T = [NaN NaN NaN];
+
+            %theta 1 is based on a triangle with known x and y
+            theta1 = atan2(ts(2), ts(1));
             
-            theta1_1 = atan2(sqrt(1-(ts(1)/sqrt(ts(1)^2 + ts(2)^2))^2), (ts(1)/sqrt(ts(1)^2 + ts(2)^2)));
-            theta1_2 = atan2(-sqrt(1-(ts(1)/sqrt(ts(1)^2 + ts(2)^2))^2), (ts(1)/sqrt(ts(1)^2 + ts(2)^2)));
-            
-            if theta1_1 > self.qlim(1, 1) && theta1_1 < self.qlim(1, 2)
-               theta1 = theta1_1;
-            elseif theta1_2 > self.qlim(1, 1) && theta1_2 < self.qlim(1, 2)
-                theta1 = theta1_2;
-            else
-                error("theta 1 out of bounds");
+            if ~(theta1 > self.qlim(1,1) && theta1 < self.qlim(1,2))
+               error("theta 1 out of bounds");
             end
             
             d_1 = sqrt(ts(1)^2 + ts(2)^2 + (ts(3) - self.L1 - self.L0)^2);
@@ -304,7 +300,8 @@ classdef Robot < handle
                    error("joint values out of bounds");
                end
             end
-            disp(theta);
+%             disp(theta);
+            T = rad2deg(T);
         end
         
         %Returns T00 HT matrix given joint configuration

@@ -29,7 +29,7 @@ try
     pp.interpolate_jp([0 0 0], 1000);
     pause(2);
     
-    q = [45 45 45];
+    q = [-70 30 15];
     T = pp.fk3001(q);
     disp(T);
     ik = pp.ik3001(T(1:3, 4))
