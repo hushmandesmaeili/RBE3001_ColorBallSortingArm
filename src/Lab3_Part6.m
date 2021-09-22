@@ -48,10 +48,6 @@ BOUND = 8.5;
 NUM_POINTS = 10;
 
 try     
-        q(1, :) = pp.ik3001(p(:, 1));
-        q(2, :) = pp.ik3001(p(:, 2));
-        q(3, :) = pp.ik3001(p(:, 3));
-        q(4, :) = pp.ik3001(p(:, 4));
         
         %Point 1 --> Point 2 --> Point 3 --> Point 1
         
@@ -64,15 +60,15 @@ try
             
             if x ~= 3
                 %a coefficients for joint 1, 2 and 3.
-                A_J1 = trajPlan.cubic_traj(t0, tf, q(x, 1), q(x+1, 1), v0, vf);
-                A_J2 = trajPlan.cubic_traj(t0, tf, q(x, 2), q(x+1, 2), v0, vf);
-                A_J3 = trajPlan.cubic_traj(t0, tf, q(x, 3), q(x+1, 3), v0, vf);
+                A_J1 = trajPlan.cubic_traj(t0, tf, p(1, x), p(1, x+1), v0, vf);
+                A_J2 = trajPlan.cubic_traj(t0, tf, p(2, x), p(2, x+1), v0, vf);
+                A_J3 = trajPlan.cubic_traj(t0, tf, p(3, x), p(3, x+1), v0, vf);
                 
             else
                 %a coefficients for joint 1, 2 and 3.
-                A_J1 = trajPlan.cubic_traj(t0, tf, q(x, 1), q(1, 1), v0, vf);
-                A_J2 = trajPlan.cubic_traj(t0, tf, q(x, 2), q(1, 2), v0, vf);
-                A_J3 = trajPlan.cubic_traj(t0, tf, q(x, 3), q(1, 3), v0, vf);
+                A_J1 = trajPlan.cubic_traj(t0, tf, p(1, x), p(1, 1), v0, vf);
+                A_J2 = trajPlan.cubic_traj(t0, tf, p(2, x), p(2, 1), v0, vf);
+                A_J3 = trajPlan.cubic_traj(t0, tf, p(3, x), p(3, 1), v0, vf);
             end
 
             A_set(:,1:3, x) = [A_J1 A_J2 A_J3];
@@ -85,7 +81,7 @@ try
         EE_Acc = zeros(1, 3);
         accumTime = 0;
 
-        pp.servo_jp(q(1, :));
+        pp.servo_jp(pp.ik3001(p1));
         pause(1);
         
         for i = 1:3
@@ -95,7 +91,7 @@ try
             tic
             while (norm(transpose(p(:, i+1)) - currentPos) > BOUND)
                 setpoint = trajPlan.getSetpoint(toc, A_set(:, 1, i), A_set(:, 2, i), A_set(:, 3, i));
-                pp.servo_jp(setpoint);
+                pp.servo_jp(pp.ik3001(setpoint));
                 currentJointConfig = pp.measured_js(1, 0);
                 currentPos = pp.position(currentJointConfig(1, :));
                 
@@ -171,9 +167,16 @@ try
         xlabel('Time (s)')
         ylabel('End Effector Acceleration (mm/s^2)')
         hold off      
-        
-        
-        writematrix(EE_Pos, 'CubicMotion_JointSpaceAngs_Trajectory.csv');
+
+%           %Trajectory of this part
+%           plot3(EE_Pos(2:end,1), EE_Pos(2:end, 2), EE_Pos(2:end, 3));
+%           title('Plot of end effector position');
+%           xlabel('x (mm)');
+%           ylabel('y (mm)');
+%           zlabel('z (mm)');
+          
+          writematrix(EE_Pos, 'CubicMotion_TaskSpaceCoord_Trajectory.csv');
+          
     
 catch exception
     getReport(exception)
