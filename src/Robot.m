@@ -148,7 +148,7 @@ classdef Robot < handle
 %             toc
 
         end
-        theta1
+        
         % Takes two bool values, GETPOS and GETVEL. Returns only requested
         % date, and set rest to zero. 
         % Returns a 1x3 array that contains current joint positions in
@@ -213,13 +213,17 @@ classdef Robot < handle
         end
         
         %calculates task space based on joint angles
-        %task space vector is [px, py, pz]
+        %task space vector is a 3x1 vector [px; py; pz]
         function T = ik3001(self, ts)
+            
             T = [NaN NaN NaN];
 
             %theta 1 is based on a triangle with known x and y
             theta1 = atan2(ts(2), ts(1));
-            
+
+            %theta 1 is based on a triangle with known x and y
+            theta1 = atan2(ts(2), ts(1));
+
             if ~(theta1 > self.qlim(1,1) && theta1 < self.qlim(1,2))
                error("theta 1 out of bounds");
             end
@@ -247,11 +251,15 @@ classdef Robot < handle
 %             theta(1,1) = theta1;
 %             theta(2,1:4) = [theta2_1 theta2_2 theta2_3 theta2_4];
 %             theta(3,1:2) = [
-            
+%             
+%             theta = [theta1 NaN;
+%                     theta2_1 theta2_2;
+%                     theta3_1 theta3_2];
+
             theta = [theta1 NaN;
                     theta2_1 theta2_2;
                     theta3_1 theta3_2];
-                
+
             %if values are out of bounds, remove them from array
             for i = 1:2
                 if (theta(2, i) < self.qlim(2, 1)) || (theta(2, i) > self.qlim(2, 2))
@@ -300,7 +308,7 @@ classdef Robot < handle
                    error("joint values out of bounds");
                end
             end
-%             disp(theta);
+
             T = rad2deg(T);
         end
         
