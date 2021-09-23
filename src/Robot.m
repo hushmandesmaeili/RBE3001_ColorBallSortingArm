@@ -217,24 +217,13 @@ classdef Robot < handle
         function T = ik3001(self, ts)
             
             T = [NaN NaN NaN];
-            
-%             D_1 = ts(1)/(sqrt(ts(1)^2 + ts(2)^2));
-            
-%             theta1_2 = atan2(-sqrt(1-D_1^2), D_1);
-%             theta1_1 = atan2(sqrt(1-(ts(1)/(sqrt(ts(1)^2 + ts(2)^2)))^2), (ts(1)/sqrt(ts(1)^2 + ts(2)^2)));
-%             theta1_2 = atan2(-sqrt(1-(ts(1)/sqrt(ts(1)^2 + ts(2)^2))^2), (ts(1)/sqrt(ts(1)^2 + ts(2)^2)));
-            
-%             if theta1_1 > self.qlim(1, 1) && theta1_1 < self.qlim(1, 2)
-%                theta1 = theta1_1;
-%             elseif theta1_2 > self.qlim(1, 1) && theta1_2 < self.qlim(1, 2)
-%                 theta1 = theta1_2;
-%             else
-%                 error("theta 1 out of bounds");
-%             end
 
             %theta 1 is based on a triangle with known x and y
             theta1 = atan2(ts(2), ts(1));
-            
+
+            %theta 1 is based on a triangle with known x and y
+            theta1 = atan2(ts(2), ts(1));
+
             if ~(theta1 > self.qlim(1,1) && theta1 < self.qlim(1,2))
                error("theta 1 out of bounds");
             end
@@ -319,8 +308,7 @@ classdef Robot < handle
                    error("joint values out of bounds");
                end
             end
-            
-            
+
             T = rad2deg(T);
         end
         

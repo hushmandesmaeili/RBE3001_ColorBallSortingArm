@@ -26,6 +26,36 @@ classdef graphing
             writematrix([G;T], self.csv);
         end
         
+        function plot3DMotion(self, q1, q2, q3)
+            mpMatrix = readmatrix(self.csv);
+            mpMatrix = mpMatrix(2:end, :);
+            
+            %Points of Triangle
+            point1 = self.robot.position(q1);
+            point2 = self.robot.position(q2);
+            point3 = self.robot.position(q3);
+            points = [point1; point2; point3];
+            
+            %Plot of position vs time
+            subplot(4, 1, 1)
+            hold on
+            plot(mpMatrix(:, 1), mpMatrix(:, 5), 'r-') %x
+            plot(mpMatrix(:, 1), mpMatrix(:, 6), 'g-') %y
+            plot(mpMatrix(:, 1), mpMatrix(:, 7), 'b-') %z
+            legend('x', 'y', 'z')
+            title("Plot of position vs Time")
+            xlabel('Time (s)')
+            ylabel('Position (mm)')
+            hold off
+            
+            subplot(4, 1, 2)
+            hold on
+            plot3(points(1))
+            title("Plot of end effector position")
+            hold off
+            
+        end
+        
         %plots all subplots
         function plotMotion(self, q1, q2, q3)
             mpMatrix = readmatrix(self.csv);
