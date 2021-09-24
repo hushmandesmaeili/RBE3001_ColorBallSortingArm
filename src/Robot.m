@@ -5,10 +5,19 @@ classdef Robot < handle
         pol; 
         GRIPPER_ID = 1962;
         endMotionSetPos;
-%         L0 = 55;    %Length of Link 0
-%         L1 = 40;    %Length of Link 1
-%         L2 = 100;   %Length of Link 2
-%         L3 = 100;   %Length of Link 3
+        L0 = 55;    %Length of Link 0
+        L1 = 40;    %Length of Link 1
+        L2 = 100;   %Length of Link 2
+        L3 = 100;   %Length of Link 3
+        
+        %1min, 1max; 2min 2max; 3min 3max;
+        qlimdeg = [-90 90;
+                -45 100;
+                -90 63]; 
+            
+        qlim = deg2rad([-90 90;
+                        -45 100;
+                        -90 63]);
     end
     
     methods
@@ -44,7 +53,7 @@ classdef Robot < handle
                        com(i)= ret(i).floatValue();
                     end
                 catch exception
-                    getReport(exception)
+                    getReportheta1t(exception)
                     disp('Command error, reading too fast');
                 end
         end
@@ -203,6 +212,106 @@ classdef Robot < handle
             
         end
         
+        %calculates task space based on joint angles
+        %task space vector is a 3x1 vector [px; py; pz]
+        function T = ik3001(self, ts)
+            
+            T = [NaN NaN NaN];
+
+            %theta 1 is based on a triangle with known x and y
+            theta1 = atan2(ts(2), ts(1));
+
+            %theta 1 is based on a triangle with known x and y
+            theta1 = atan2(ts(2), ts(1));
+
+            if ~(theta1 > self.qlim(1,1) && theta1 < self.qlim(1,2))
+               error("theta 1 out of bounds");
+            end
+            
+            d_1 = sqrt(ts(1)^2 + ts(2)^2 + (ts(3) - self.L1 - self.L0)^2);
+            D_3 = (self.L3^2 + self.L2^2 - d_1^2)/(2*self.L2*self.L3);
+            theta3_1 = atan2(D_3, sqrt(1-D_3^2));
+            theta3_2 = atan2(D_3, -sqrt(1-D_3^2));
+            
+            D_2_1 = (self.L3*cos(theta3_1))/d_1;
+            D_2_2 = (self.L3*cos(theta3_2))/d_1;
+            a1_1 = atan2(D_2_1, sqrt(1-D_2_1^2));
+            a1_2 = atan2(D_2_2, sqrt(1-D_2_2^2));
+            %theoretical but unnecessary solutions
+%             a1_3 = atan2(D_2_1, -sqrt(1-D_2_1^2));
+%             a1_4 = atan2(D_2_2, -sqrt(1-D_2_2^2));
+            
+            a2 = atan2((ts(3) - self.L0 - self.L1), sqrt(ts(1)^2 + ts(2)^2));
+            theta2_1 = pi/2 - a2 - a1_1;
+            theta2_2 = pi/2 - a2 - a1_2;
+%             theta2_3 = pi/2 - a2 - a1_3;
+%             theta2_4 = pi/2 - a2 - a1_4;
+            
+%             theta = int16.empty(3,4);
+%             theta(1,1) = theta1;
+%             theta(2,1:4) = [theta2_1 theta2_2 theta2_3 theta2_4];
+%             theta(3,1:2) = [
+%             
+%             theta = [theta1 NaN;
+%                     theta2_1 theta2_2;
+%                     theta3_1 theta3_2];
+
+            theta = [theta1 NaN;
+                    theta2_1 theta2_2;
+                    theta3_1 theta3_2];
+
+            %if values are out of bounds, remove them from array
+            for i = 1:2
+                if (theta(2, i) < self.qlim(2, 1)) || (theta(2, i) > self.qlim(2, 2))
+                   theta(2, i) = NaN;
+                end
+            end
+            
+            for i = 1:2
+                if (theta(3, i) < self.qlim(3, 1)) || (theta(3, i) > self.qlim(3, 2))
+                   theta(3, i) = NaN;
+                end
+            end
+            
+            %if corresponding theta2 value is impossible, corresponding 3
+            %values cannot be either
+            if isnan(theta(2, 1)) 
+               theta(3, 1) = NaN;
+            end
+            
+            if isnan(theta(2, 2))
+               theta(3, 2) = NaN;
+            end
+            
+            %if corresponding theta 3 value is impossible, corresping
+            %theta2 value cannot be either
+            if isnan(theta(3, 1))
+               theta(2, 1) = NaN;
+%                theta(2, 3) = NaN;
+            end
+            
+            if isnan(theta(3, 2))
+               theta(2, 2) = NaN;
+%                theta(2, 4) = NaN;
+            end
+            
+            for i = 1:3
+                for j = 1:2
+                    if ~isnan(theta(i, j))
+                       T(1, i) = theta(i, j);
+                    end
+                end
+            end
+            
+            for i = 1:3
+               if isnan(T(i))
+                   error("joint values out of bounds");
+               end
+            end
+
+            T = rad2deg(T);
+        end
+        
         %Returns T00 HT matrix given joint configuration
         function T = T00(pp, q)
             T = eye(4,4);
@@ -233,15 +342,16 @@ classdef Robot < handle
                    0, 0, 0, 1];
         end
         
+        %Takes data from measured_js() and returns a 4x4 homogeneous transformation
+        %matrix based upon the current joint positions in degrees.
         function T = measured_cp(pp)
         
             q = pp.measured_js(1, 0);
             q = q(1, :);
             T = pp.fk3001(q);
-            
         end
         
-        %returns HT matrix to get to current location of arm
+        %Returns HT matrix to get to current location of arm
         function T = setpoint_cp(pp)
             T = pp.fk3001(pp.setpoint_js());
         end
