@@ -42,8 +42,8 @@ dhTable = [0             L0 0    0;
 %Intermediate Transform Matrices
 T01 = pp.dh2mat(dhTable(1, :));
 T02 = T01 * pp.dh2mat(dhTable(2, :));
-T03 = T02 * pp.dh2mat(dhTable(2, :));
-T04 = T03 * pp.dh2mat(dhTable(2, :));
+T03 = T02 * pp.dh2mat(dhTable(3, :));
+T04 = T03 * pp.dh2mat(dhTable(4, :));
 
 %Position Vector of Final Transform Matrix
 P = T04(1:3, 4);
