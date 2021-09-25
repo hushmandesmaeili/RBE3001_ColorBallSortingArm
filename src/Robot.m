@@ -384,8 +384,8 @@ classdef Robot < handle
         %takes in current joint configuration and returns current linear
         %and angular velocities
         function P = fdk3001(pp, q)
-            J = jacob3001(q);
-            P = J*q;
+            J = pp.jacob3001(q);
+            P = J*q';
         end
         
     end
