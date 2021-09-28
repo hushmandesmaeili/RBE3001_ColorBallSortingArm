@@ -389,6 +389,31 @@ classdef Robot < handle
             P = J*qdot;
         end
         
+        function d = calcJacobianDet(pp, q)
+            J = pp.jacob3001(q);
+            d = det(J(1:3, :));
+        end
+        
+        %Method that determines whether robot is close to a singular
+        %configuration. 
+        function isClose = isCloseToSingularity(pp, q)
+            d = pp.calcJacobianDet(q);
+            
+            if (d < 0.1)
+                isClose = true;
+            else
+               isClose = false;
+            end
+        end
+        
+        
+        function EStop(pp)
+            currentJointConfig = pp.measured_js(1,0);
+            pp.servo_jp(currentJointConfig(1, :));
+            
+            error("Robot reached singular configuration. Motion has stopped.");
+        end
+        
     end
     
 end
