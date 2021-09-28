@@ -97,17 +97,18 @@ try
                 setpoint = trajPlan.getSetpoint(toc, A_set(:, 1, i), A_set(:, 2, i), A_set(:, 3, i));
                 pp.servo_jp(pp.ik3001(setpoint));
                 currentJointConfig = pp.measured_js(1, 0);
+                currentJointVel = currentJointConfig(2, :);
                 currentPos = pp.position(currentJointConfig(1, :));
                 
                 %Live Plot
-                P = pp.fdk3001(currentJointConfig(1, :));
+                P = pp.fdk3001(currentJointConfig(1, :), currentJointVel.');
                 mod.plot_arm_fvk(currentJointConfig(1, :), P(1:3));
                 drawnow;
                 
                 
                 %Recording data
-                EE_LinVel(index, 1:3) = P(1:3)';
-                EE_AngVel(index, 1:3) = P(4:6)';
+                EE_LinVel(index, 1:3) = P(1:3).';
+                EE_AngVel(index, 1:3) = P(4:6).';
                 EE_LinVel_Mag(index) = norm(EE_LinVel(index, 1:3));
                 index = index + 1;
                 T(index) = toc + accumTime;
