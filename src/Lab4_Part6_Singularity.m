@@ -23,10 +23,12 @@ myHIDSimplePacketComs.connect();
 % Create a PacketProcessor object to send data to the nucleo firmware
 pp = Robot(myHIDSimplePacketComs); 
 
-% % Creates Frame3D object
-% frame = Frame3D();
+% Creates Frame3D object
+frame = Frame3D();
 
-% mod = Model(pp, frame);
+%Creates model object
+mod = Model(pp, frame);
+
 close all;
 
 pp.closeGripper();
@@ -75,16 +77,16 @@ try
             q = currentJointConfig(1, :);
             currentPos = pp.position(q);
             
-            if (pp.isCloseToSingularity(q))
-                pp.EStop();
-                singularity = true;
-            end
+            %Live Plot
+            mod.plot_arm(currentJointConfig(1, :));
+            drawnow;
+
+            singularity = pp.isCloseToSingularity(q);
 
             %Recording data
             EE_Pos = [EE_Pos; currentPos]; 
             JDet = [JDet; pp.calcJacobianDet(q)]; 
             T = [T; toc + accumTime];
-            
         end
         
         
@@ -97,6 +99,7 @@ try
         xlabel('X (mm)')
         ylabel('Y (mm)')
         zlabel('Z (mm)')
+        grid on;
         hold off
         
         %Plot of Tip Velocity vs Time
@@ -107,6 +110,7 @@ try
         title("Plot of Jacobian Determinant vs Time")
         xlabel('Time (s)')
         ylabel('Jacobian Determinant')
+        grid on;
         hold off  
         
 %         writematrix(EE_Pos, 'CubicMotion_JointSpaceAngs_Trajectory.csv');

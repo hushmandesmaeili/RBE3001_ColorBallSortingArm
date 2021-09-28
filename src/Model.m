@@ -37,9 +37,9 @@ classdef Model < handle
             plot3(XJVals, YJVals, ZJVals, 'k-o', 'LineWidth', 2)
             hold on
             grid on;
-            xlim([-250 250]);
-            ylim([-250 250]);
-            zlim([-10 250]);
+            xlim([-300 300]);
+            ylim([-300 300]);
+            zlim([-10 300]);
             xlabel('x position')
             ylabel('y position')
             zlabel('z position')
@@ -52,6 +52,12 @@ classdef Model < handle
             self.frame.showFrame(T02, arrowSize);
             self.frame.showFrame(T03, arrowSize);
             self.frame.showFrame(T04, arrowSize);
+            
+            if (self.robot.isCloseToSingularity(q))
+                txt = 'ERROR! ARM AT SINGULARITY';
+                text(T01(1, 4), T01(2, 4), txt, 'Color', 'red', 'FontSize', 20, 'HorizontalAlignment', 'center');
+                self.robot.EStop();
+            end
             
             hold off
         end

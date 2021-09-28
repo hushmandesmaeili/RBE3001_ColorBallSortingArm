@@ -382,7 +382,7 @@ classdef Robot < handle
         end
         
         %takes in current joint configuration, 
-        %current joint velocities (3x1),
+        %takes current joint velocities (3x1),
         %and returns current linear and angular velocities
         function P = fdk3001(pp, q, qdot)
             J = pp.jacob3001(q);
@@ -410,6 +410,8 @@ classdef Robot < handle
         function EStop(pp)
             currentJointConfig = pp.measured_js(1,0);
             pp.servo_jp(currentJointConfig(1, :));
+            
+%             disp('Error');
             
             error("Robot reached singular configuration. Motion has stopped.");
         end
