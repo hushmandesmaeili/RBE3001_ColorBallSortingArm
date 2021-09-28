@@ -31,7 +31,8 @@ close all;
 
 pp.closeGripper();
 
-p1 = [100; 0; 195];
+% p1 = [100; 0; 195];
+p1 = [41; -113; 111];
 p2 = [0; 0; 250];
 p = [p1 p2];
 q = zeros(4,3);
@@ -43,16 +44,16 @@ vf = 0;
 
 trajPlan = Traj_Planner();
 
-BOUND = 8.5;
+BOUND = 1.5;
 
 try     
 %         q(1, :) = pp.ik3001(p1);
 %         q(2, :) = pp.ik3001(p2);
         
         %a coefficients for joint 1, 2 and 3.
-        A_J1 = trajPlan.cubic_traj(t0, tf, p(1, 1), p(2, 1), v0, vf);
-        A_J2 = trajPlan.cubic_traj(t0, tf, p(1, 2), p(2, 2), v0, vf);
-        A_J3 = trajPlan.cubic_traj(t0, tf, p(1, 3), p(2, 3), v0, vf);
+        A_J1 = trajPlan.cubic_traj(t0, tf, p(1, 1), p(1, 2), v0, vf);
+        A_J2 = trajPlan.cubic_traj(t0, tf, p(2, 1), p(2, 2), v0, vf);
+        A_J3 = trajPlan.cubic_traj(t0, tf, p(3, 1), p(3, 2), v0, vf);
         
         T = zeros(1,1);
         EE_Pos = zeros(1, 3);
@@ -67,7 +68,7 @@ try
         currentPos = pp.position(currentJointConfig(1, :));
         singularity = false;
         tic
-        while ((norm(transpose(p2) - currentPos) > BOUND) && ~singularity)
+        while (((p2(1) - currentPos(1) > BOUND) || (p2(2) - currentPos(2) > BOUND) || (p2(3) - currentPos(3) > BOUND)) && ~singularity)
             setpoint = trajPlan.getSetpoint(toc, A_J1, A_J2, A_J3);
             pp.servo_jp(pp.ik3001(setpoint));
             currentJointConfig = pp.measured_js(1, 0);
@@ -89,7 +90,7 @@ try
         
         %Plot of Tip position vs Time
         subplot(2, 1, 1)
-        plot3(EE_Pos(:, 1), EE_Pos(:, 2), EE_Pos(:, 3));
+        plot3(EE_Pos(2:end, 1), EE_Pos(2:end, 2), EE_Pos(2:end, 3));
         hold on
         legend('End Effector Position')
         title("Plot of End Effector Motion")
@@ -101,7 +102,7 @@ try
         %Plot of Tip Velocity vs Time
         subplot(2, 1, 2)
         hold on
-        plot(T, JDet, 'b-') %Jacobian determinant vs time
+        plot(T(2:end), JDet(2:end), 'b-') %Jacobian determinant vs time
         legend('Jacobian determinant')
         title("Plot of Jacobian Determinant vs Time")
         xlabel('Time (s)')

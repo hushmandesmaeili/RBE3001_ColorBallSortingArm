@@ -399,7 +399,7 @@ classdef Robot < handle
         function isClose = isCloseToSingularity(pp, q)
             d = pp.calcJacobianDet(q);
             
-            if (d < 0.1)
+            if (d < 1.8)
                 isClose = true;
             else
                isClose = false;
