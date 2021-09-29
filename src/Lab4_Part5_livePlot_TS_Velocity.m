@@ -96,7 +96,7 @@ try
             while (norm(transpose(p(:, i+1)) - currentPos) > BOUND)
                 setpoint = trajPlan.getSetpoint(toc, A_set(:, 1, i), A_set(:, 2, i), A_set(:, 3, i));
                 pp.servo_jp(pp.ik3001(setpoint));
-                currentJointConfig = pp.measured_js(1, 0);
+                currentJointConfig = pp.measured_js(1, 1);
                 currentJointVel = currentJointConfig(2, :);
                 currentPos = pp.position(currentJointConfig(1, :));
                 
