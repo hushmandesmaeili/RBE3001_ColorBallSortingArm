@@ -368,6 +368,53 @@ classdef Robot < handle
             T = T(1:3, 4)';
         end
         
+        %Takes in a joint configuration (Theta1, theta2, theta3, returns Jacobian for that joint
+        %configuration
+        function J = jacob3001(pp, q)
+            
+           J = [ 
+             (5*pi*sin((pi*q(1))/180)*sin((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*sin((pi*q(1))/180)*cos((pi*(q(2) - 90))/180)*cos((pi*(q(3) + 90))/180))/9 - (5*pi*sin((pi*q(1))/180)*cos((pi*(q(2) - 90))/180))/9,       - (5*pi*cos((pi*q(1))/180)*sin((pi*(q(2) - 90))/180))/9 - (5*pi*cos((pi*q(1))/180)*cos((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*cos((pi*q(1))/180)*cos((pi*(q(3) + 90))/180)*sin((pi*(q(2) - 90))/180))/9,     - (5*pi*cos((pi*q(1))/180)*cos((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*cos((pi*q(1))/180)*cos((pi*(q(3) + 90))/180)*sin((pi*(q(2) - 90))/180))/9
+             (5*pi*cos((pi*q(1))/180)*cos((pi*(q(2) - 90))/180))/9 + (5*pi*cos((pi*q(1))/180)*cos((pi*(q(2) - 90))/180)*cos((pi*(q(3) + 90))/180))/9 - (5*pi*cos((pi*q(1))/180)*sin((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9,       - (5*pi*sin((pi*q(1))/180)*sin((pi*(q(2) - 90))/180))/9 - (5*pi*sin((pi*q(1))/180)*cos((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*sin((pi*q(1))/180)*cos((pi*(q(3) + 90))/180)*sin((pi*(q(2) - 90))/180))/9,     - (5*pi*sin((pi*q(1))/180)*cos((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*sin((pi*q(1))/180)*cos((pi*(q(3) + 90))/180)*sin((pi*(q(2) - 90))/180))/9
+                                                                                                                                                                                                                                     0,                                                                  (5*pi*sin((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*cos((pi*(q(2) - 90))/180)*cos((pi*(q(3) + 90))/180))/9 - (5*pi*cos((pi*(q(2) - 90))/180))/9,                                             (5*pi*sin((pi*(q(2) - 90))/180)*sin((pi*(q(3) + 90))/180))/9 - (5*pi*cos((pi*(q(2) - 90))/180)*cos((pi*(q(3) + 90))/180))/9
+                                                                                                                                                                                                                                     0,                                                                                                                                                                                                               -sin((pi*q(1))/180),                                                                                                                                                     -sin((pi*q(1))/180)
+                                                                                                                                                                                                                                     0,                                                                                                                                                                                                                cos((pi*q(1))/180),                                                                                                                                                      cos((pi*q(1))/180)
+                                                                                                                                                                                                                                     1,                                                                                                                                                                                                                                 0,                                                                                                                                                                       0];
+        end
+        
+        %takes in current joint configuration, 
+        %takes current joint velocities (3x1),
+        %and returns current linear and angular velocities
+        function P = fdk3001(pp, q, qdot)
+            J = pp.jacob3001(q);
+            P = J*qdot;
+        end
+        
+        function d = calcJacobianDet(pp, q)
+            J = pp.jacob3001(q);
+            d = det(J(1:3, :));
+        end
+        
+        %Method that determines whether robot is close to a singular
+        %configuration. 
+        function isClose = isCloseToSingularity(pp, q)
+            d = pp.calcJacobianDet(q);
+            
+            if (d < 1.8)
+                isClose = true;
+            else
+               isClose = false;
+            end
+        end
+        
+        
+        function EStop(pp)
+            currentJointConfig = pp.measured_js(1,0);
+            pp.servo_jp(currentJointConfig(1, :));
+            
+%             disp('Error');
+            
+            error("Robot reached singular configuration. Motion has stopped.");
+        end
         
     end
     
