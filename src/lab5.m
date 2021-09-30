@@ -50,8 +50,16 @@ try
     if cam.params == 0
         error("No camera parameters found!");
     end
-    cam.cam_pose = cam.getCameraPose();
-    
+    [Is, pose] = cam.getRealCameraPose()
+%       [re, ree] = cam.getCameraPose()
+%       disp(ree)
+%     cam.cam_pose
+    T0Check = [0 1 0 50;
+            1 0 0 -100;
+            0 0 -1 0;
+            0 0 0 1];
+        
+    T0Cam = T0Check * pose
     
     
 catch exception
