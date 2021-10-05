@@ -12,8 +12,15 @@ classdef Camera < handle
         % Properties
         params;
         cam;
+        undist_cam_params;
         cam_pose;
         cam_imajl;
+%     end
+%     
+%     properties (Access = private)
+        checkPos = [-25 225;
+                 -75 100];
+        camPos = zeros(2,5);
     end
     
     methods
@@ -22,7 +29,13 @@ classdef Camera < handle
             self.cam = webcam(2); % Get camera object
             self.params = self.calibrate(); % Run Calibration Function
             [self.cam_imajl, self.cam_pose] = self.getCameraPose();
+            self.camPos(:, 1) = worldToImage(self.params.Intrinsics, self.cam_pose(1:3, 1:3), self.cam_pose(1:3, 4), [self.checkPos(1, 1) self.checkPos(2, 1) 0]);
+            self.camPos(:, 2) = self.camPos(:, 1);
+            self.camPos(:, 3) = worldToImage(self.params.Intrinsics, self.cam_pose(1:3, 1:3), self.cam_pose(1:3, 4), [self.checkPos(1, 1) self.checkPos(2, 2) 0]);
+            self.camPos(:, 4) = worldToImage(self.params.Intrinsics, self.cam_pose(1:3, 1:3), self.cam_pose(1:3, 4), [self.checkPos(1, 2) self.checkPos(2, 2) 0]);
+            self.camPos(:, 5) = worldToImage(self.params.Intrinsics, self.cam_pose(1:3, 1:3), self.cam_pose(1:3, 4), [self.checkPos(1, 2) self.checkPos(2, 1) 0]);
         end
+        
 
         function shutdown(self)
             % SHUTDOWN shutdown script which clears camera variable
@@ -59,7 +72,7 @@ classdef Camera < handle
         % Returns an undistorted camera image
         function img = getImage(self)
             raw_img =  snapshot(self.cam);
-            [img, new_origin] = undistortFisheyeImage(raw_img, self.params.Intrinsics, 'OutputView', 'full');
+            [img, new_origin] = undistortFisheyeImage(raw_img, self.undist_cam_params, 'OutputView', 'full');
         end
 
         
@@ -78,6 +91,7 @@ classdef Camera < handle
             raw_img =  snapshot(self.cam);
 %             % 2. Undistort Image based on param
             
+            self.undist_cam_params = self.params.Intrinsics;
             [img, newIs] = undistortFisheyeImage(raw_img, self.params.Intrinsics, 'OutputView', 'full');
             self.params.Intrinsics = newIs;
             % 3. Detect checkerboard in the image
@@ -133,6 +147,29 @@ classdef Camera < handle
         function [newIs, pose] = getRealCameraPose(self)
                 newIs = self.cam_imajl;
                 pose = self.cam_pose;
+        end
+        
+        function imgOut = boardMask(self, img)
+            maskOut = poly2mask(self.camPos(1,:), self.camPos(2,:), 287, 360);
+            imgOut = maskOut.*img;
+        end
+        
+        function imgOut = colorMask(self, img, char)
+           
+           switch char
+               case 'g'
+                   [imgOut, w] = greenMask(img);
+               case 'y'
+                   [imgOut, w] = yellowMask(img);
+               case 'o'
+                   [imgOut, w] = orangeMask(img);
+               case 'r'
+                   [imgOut, w] = redMask(img);
+           end
+           
+           imgOut = self.boardMask(imgOut);
+           imgOut = imfill(imgOut, 'holes');
+           imgOut = bwareaopen(imgOut, 200);
         end
     end
 end
