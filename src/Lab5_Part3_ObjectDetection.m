@@ -1,9 +1,11 @@
+
 %%
 % RBE 3001 Lab 5 example code!
 % Developed by Alex Tacescu (https://alextac.com)
 %%
 clc;
 clear;
+close all;
 clear java;
 format short
 
@@ -35,7 +37,9 @@ myHIDSimplePacketComs.connect();
 
 robot = Robot(myHIDSimplePacketComs);
 
-cam = Camera();
+% cam = Camera();
+% save lab5cam cam
+load lab5cam cam
 cam.DEBUG = DEBUG_CAM;
 
 %% Place Poses per color
@@ -70,7 +74,19 @@ try
        g = pointsToWorld(Is, pose(1:3, 1:3), pose(1:3, 4), i);
        c = [g(1); g(2); 0; 1]; %position in terms of checkerboard
        p = T0Check*c;
-    
+
+%     inImage = snapshot(cam.cam);
+%     [b, w] = greenMask(inImage);
+% BW = bwareaopen(b, 90);
+% imshow(BW);
+
+    %find centroid of yellow ball
+    inImg = cam.getImage();
+    out = cam.colorMask(inImg, 'y');
+    props = regionprops(out);
+    centroid = props.Centroid
+    imshowpair(inImg, out);
+
 catch exception
     fprintf('\n ERROR!!! \n \n');
     disp(getReport(exception));
