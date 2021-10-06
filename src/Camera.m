@@ -15,9 +15,18 @@ classdef Camera < handle
         undist_cam_params;
         cam_pose;
         cam_imajl;
-%     end
-%     
-%     properties (Access = private)
+    end
+    
+    properties (Access = private)
+        camHeight = 278; %mm
+        ballRad = 11; %mm
+        camx = 200; %mm
+        
+        T0Check = [0 1 0 50;
+           1 0 0 -100;
+           0 0 -1 0;
+           0 0 0 1];
+        
         checkPos = [-25 225;
                  -75 100];
         camPos = zeros(2,5);
@@ -170,6 +179,47 @@ classdef Camera < handle
            imgOut = self.boardMask(imgOut);
            imgOut = imfill(imgOut, 'holes');
            imgOut = bwareaopen(imgOut, 200);
+        end
+        
+        function point = camToRobot(self, img_point)
+           g = pointsToWorld(self.cam_imajl, self.cam_pose(1:3, 1:3), self.cam_pose(1:3, 4), img_point);
+           c = [g(1); g(2); 0; 1]; %position in terms of checkerboard
+           point = self.T0Check*c;
+        end
+        
+        function c = findCentroid(self, char)
+            inImg = self.getImage();
+            out = self.colorMask(inImg, char);
+            props = regionprops(out);
+            c_img = props.Centroid;
+            c = self.camToRobot(c_img);
+%             imshowpair(inImg, out);
+        end
+        
+        function a = ballPosition(self, char)
+            centroid = self.findCentroid(char);
+            camDist = sqrt((self.camx - centroid(1))^2 + centroid(2)^2);
+            diff = (camDist*self.ballRad)/self.camHeight;
+            
+            p = centroid;
+            xpb = p(1); %x-distance from projected point to base
+            ypb = p(2); %y-distance from projected point to base
+            %hpb = sqrt(ybp^2+xbp^2); %distance from projected point to base (hypotenuse)
+            
+            distcb = 200; %distance from base to camera
+            
+            xpc = distcb-xpb; %x distance from projected point to camera
+            hpc = sqrt(xpc^2+ypb^2); %distance from projected point to camera (hypotenuse)
+            
+            hac = hpc-diff; %distance from actual point to camera;
+            ya = (ypb*hac)/hpc; %y distance from a to base (same as distance from a to camera)
+            xac = ((xpc*hac)/hpc); %x distance from base to actual point
+            xa = self.camx - xac;
+            
+            a = [xa; ya; self.ballRad];
+            
+            
+            
         end
     end
 end
