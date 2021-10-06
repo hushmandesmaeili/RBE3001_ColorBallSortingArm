@@ -463,8 +463,8 @@ classdef Robot < handle
         function pOut = posAdjustOpenGripper(pp, pIn)
             pOut = zeros(1, 3);
             q = pp.measured_js(1,0);
-            pOut(1) = pIn(1) - sind(q(1))*25;
-            pOut(2) = pIn(2) - cosd(q(2))*25;
+            pOut(1) = pIn(1) - sind(-q(1))*25;
+            pOut(2) = pIn(2) - cosd(-q(1))*25;
             pOut(3) = pIn(3);
         end
         
