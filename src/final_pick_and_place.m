@@ -39,13 +39,13 @@ robot = Robot(myHIDSimplePacketComs);
 
 % cam = Camera();
 % save lab5cam cam
-% load lab5cam cam
+load lab5cam cam
 
 cam.DEBUG = DEBUG_CAM;
 
 %% Place Poses per color
 purple_place = [150, -50, 11];
-green_place = [150, 50, 11];
+green_place = [150, 50, 11]; 
 pink_place = [75, -125, 11];
 yellow_place = [75, 125, 11];
 
@@ -54,34 +54,37 @@ aboveBall = 35;
 atBall = 10;
 
 %bin vocations
-yellowBin = [0 -190 70];
+yellowBin = [10 -180 70];
 
 %% Main Loop
 try
     % Set up camera
-%     if cam.params == 0
-%         error("No camera parameters found!");
-%     end
+    if cam.params == 0
+        error("No camera parameters found ERROR!!! !");
+    end
 
-%     p = cam.camToRobot(centroid);
+    ballPos = cam.ballPosition('y');
+%     if ballPos(2) < 0
+%         ballPos(2) = ballPos(2) - 15;
+%     end
 
     robot.interpolate_jp([0 0 0], 2000);
     robot.openGripper();
     pause(2);
     
     %PICK
-    robot.setQuinticTraj([75 -50 aboveBall], 3000);
+    robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 3000);
     tic
     while ~robot.atEndPoint()
         robot.trajMove(toc);
     end
     
-    robot.setQuinticTraj([75 -50 atBall], 2000);
+    robot.setQuinticTraj(ballPos', 2000);
     tic
     while ~robot.atEndPoint()
         robot.trajMove(toc);
     end
-    
+    disp(robot.currPosition());
     robot.closeGripper();
     
     %PLACE
@@ -102,4 +105,4 @@ end
 
 %% Shutdown Procedure
 robot.shutdown()
-%cam.shutdown()
+cam.shutdown()

@@ -19,7 +19,7 @@ classdef Camera < handle
     
     properties (Access = private)
         camHeight = 278; %mm
-        ballRad = 11; %mm
+        ballRad = 10; %mm
         camx = 200; %mm
         
         T0Check = [0 1 0 50;
@@ -196,6 +196,7 @@ classdef Camera < handle
 %             imshowpair(inImg, out);
         end
         
+        %returns xyz position of center of ball;
         function a = ballPosition(self, char)
             centroid = self.findCentroid(char);
             camDist = sqrt((self.camx - centroid(1))^2 + centroid(2)^2);

@@ -441,19 +441,31 @@ classdef Robot < handle
         
         function setQuinticTraj(pp, endPoint, tf)
             tf = tf/1000;
-            pp.endPoint = endPoint;
+            pp.endPoint = pp.posAdjustOpenGripper(endPoint);
             currentPos = pp.currPosition();
             
-            pp.trajCoeffs_X = pp.trajPlan.quintic_traj(0, tf, currentPos(1), endPoint(1), 0, 0, 0, 0);
-            pp.trajCoeffs_Y = pp.trajPlan.quintic_traj(0, tf, currentPos(2), endPoint(2), 0, 0, 0, 0);
-            pp.trajCoeffs_Z = pp.trajPlan.quintic_traj(0, tf, currentPos(3), endPoint(3), 0, 0, 0, 0);
+            pp.trajCoeffs_X = pp.trajPlan.quintic_traj(0, tf, currentPos(1), pp.endPoint(1), 0, 0, 0, 0);
+            pp.trajCoeffs_Y = pp.trajPlan.quintic_traj(0, tf, currentPos(2), pp.endPoint(2), 0, 0, 0, 0);
+            pp.trajCoeffs_Z = pp.trajPlan.quintic_traj(0, tf, currentPos(3), pp.endPoint(3), 0, 0, 0, 0);
             
         end
         
         function status = atEndPoint(pp)
             currentPos = pp.currPosition();
             BOUND = 8.5;
+%             BOUND = [5 5 5];
             status = norm(pp.endPoint - currentPos) < BOUND;
+%             status = (abs(pp.endPoint(1) - currentPos(1)) < BOUND(1)) && (abs(pp.endPoint(2) - currentPos(2)) < BOUND(2)) && (abs(pp.endPoint(3) - currentPos(3)) < BOUND(3));
+        end
+        
+        %takes in xyz position of end of gripper, returns xyz position of
+        %gripper open position
+        function pOut = posAdjustOpenGripper(pp, pIn)
+            pOut = zeros(1, 3);
+            q = pp.measured_js(1,0);
+            pOut(1) = pIn(1) - sind(q(1))*25;
+            pOut(2) = pIn(2) - cosd(q(2))*25;
+            pOut(3) = pIn(3);
         end
         
     end
