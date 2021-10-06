@@ -217,7 +217,7 @@ classdef Camera < handle
             xac = ((xpc*hac)/hpc); %x distance from base to actual point
             xa = self.camx - xac;
             
-            a = [xa; ya; self.ballRad];
+            a = [xa ya self.ballRad];
             
             
             

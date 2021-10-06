@@ -63,39 +63,40 @@ try
         error("No camera parameters found ERROR!!! !");
     end
 
-    ballPos = cam.ballPosition('y');
-%     if ballPos(2) < 0
-%         ballPos(2) = ballPos(2) - 15;
-%     end
+    while true
+        robot.interpolate_jp([-80 20 0], 2000);
+        robot.openGripper();
+        pause(2);
+        
+        ballPos = cam.ballPosition('y');
 
-    robot.interpolate_jp([0 0 0], 2000);
-    robot.openGripper();
-    pause(2);
-    
-    %PICK
-    robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 3000);
-    tic
-    while ~robot.atEndPoint()
-        robot.trajMove(toc);
+        %PICK
+        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 3000);
+        tic
+        while ~robot.atEndPoint()
+            robot.trajMove(toc);
+        end
+
+        robot.setQuinticTraj(ballPos, 2000);
+        tic
+        while ~robot.atEndPoint()
+            robot.trajMove(toc);
+        end
+        robot.closeGripper();
+
+    %     pos = robot.currPosition()
+    %     disp(ballPos-pos);
+    %     disp(norm(ballPos - pos));
+
+        %PLACE
+        robot.setQuinticTraj(yellowBin, 3001);
+        tic
+        while ~robot.atEndPoint()
+            robot.trajMove(toc)
+        end
+        robot.openGripper();
     end
     
-    robot.setQuinticTraj(ballPos', 2000);
-    tic
-    while ~robot.atEndPoint()
-        robot.trajMove(toc);
-    end
-    disp(robot.currPosition());
-    robot.closeGripper();
-    
-    %PLACE
-    robot.setQuinticTraj(yellowBin, 3001);
-    tic
-    while ~robot.atEndPoint()
-        robot.trajMove(toc)
-    end
-    robot.openGripper();
-
-
 catch exception
     fprintf('\n ERROR!!! \n \n');
     disp(getReport(exception));
