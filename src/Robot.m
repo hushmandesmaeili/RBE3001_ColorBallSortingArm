@@ -3,8 +3,10 @@ classdef Robot < handle
     properties
         myHIDSimplePacketComs;
         pol; 
+        trajPlan;
         GRIPPER_ID = 1962;
         endMotionSetPos;
+        endPoint;
         L0 = 55;    %Length of Link 0
         L1 = 40;    %Length of Link 1
         L2 = 100;   %Length of Link 2
@@ -20,6 +22,12 @@ classdef Robot < handle
                         -90 63]);
     end
     
+    properties (Access = private)
+       trajCoeffs_X;
+       trajCoeffs_Y;
+       trajCoeffs_Z;
+    end
+    
     methods
         
         %The is a shutdown function to clear the HID hardware connection
@@ -32,6 +40,7 @@ classdef Robot < handle
         function packet = Robot(dev)
             packet.myHIDSimplePacketComs=dev; 
             packet.pol = java.lang.Boolean(false);
+            packet.trajPlan = Traj_Planner();
         end
         
         %Perform a command cycle. This function will take in a command ID
@@ -358,7 +367,7 @@ classdef Robot < handle
         
         % Takes data from goal_js() and returns a 4x4 homogeneous transformation
         % matrix based upon the commanded end of motion joint set point 
-        % positions in degrees.
+        % positions in degrees.pp.endMotionSetPos = endPoint
         function T = goal_cp(pp)
             T = pp.fk3001(pp.goal_js());
         end
@@ -368,8 +377,15 @@ classdef Robot < handle
             T = T(1:3, 4)';
         end
         
+        %returns current xyz position of arm
+        function p = currPosition(pp)
+           q = pp.measured_js(1, 0);
+           q = q(1, :);
+           p = pp.position(q);
+        end
+        
         %Takes in a joint configuration (Theta1, theta2, theta3, returns Jacobian for that joint
-        %configuration
+        %configurationpp.endMotionSetPos = endPoint
         function J = jacob3001(pp, q)
             
            J = [ 
@@ -414,6 +430,30 @@ classdef Robot < handle
 %             disp('Error');
             
             error("Robot reached singular configuration. Motion has stopped.");
+        end
+        
+        %takes in final position in task space, moves robot appropriately
+        function trajMove(pp, t)
+            setpoint = pp.trajPlan.getSetpoint(t, pp.trajCoeffs_X, pp.trajCoeffs_Y, pp.trajCoeffs_Z);
+            q = pp.ik3001(setpoint);
+            pp.servo_jp(q);
+        end
+        
+        function setQuinticTraj(pp, endPoint, tf)
+            tf = tf/1000;
+            pp.endPoint = endPoint;
+            currentPos = pp.currPosition();
+            
+            pp.trajCoeffs_X = pp.trajPlan.quintic_traj(0, tf, currentPos(1), endPoint(1), 0, 0, 0, 0);
+            pp.trajCoeffs_Y = pp.trajPlan.quintic_traj(0, tf, currentPos(2), endPoint(2), 0, 0, 0, 0);
+            pp.trajCoeffs_Z = pp.trajPlan.quintic_traj(0, tf, currentPos(3), endPoint(3), 0, 0, 0, 0);
+            
+        end
+        
+        function status = atEndPoint(pp)
+            currentPos = pp.currPosition();
+            BOUND = 8.5;
+            status = norm(pp.endPoint - currentPos) < BOUND;
         end
         
     end
