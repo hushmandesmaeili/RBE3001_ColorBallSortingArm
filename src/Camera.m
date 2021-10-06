@@ -218,9 +218,16 @@ classdef Camera < handle
             xa = self.camx - xac;
             
             a = [xa ya self.ballRad];
+        end
+        
+        % Checks to see if color is present in board
+        % Takes in color choice as parameter, returns true/false depending 
+        % if color is present in board
+        function colorPresent = isColorPresent(self, char)
+            inImg = self.getImage();
+            out = self.colorMask(inImg, char);
             
-            
-            
+            colorPresent = ismember(1, out);
         end
     end
 end
