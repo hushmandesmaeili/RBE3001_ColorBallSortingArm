@@ -68,6 +68,14 @@ classdef Traj_Planner
             end
         end
         
+        % Returns interpolation time needed for given trajectory
+        % Takes initial position, final position and calculates distance
+        % between them. Also takes desired position. 
+        % Speed in mm/s.
+        function time = getInterpolationTime(self, p0, pf, speed)
+            distance = norm(pf - p0);
+            time = distance / speed;
+        end
         
     end
 end
