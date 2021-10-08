@@ -432,6 +432,9 @@ classdef Robot < handle
         %takes in final position in task space, moves robot appropriately
         function trajMove(pp, t)
             setpoint = pp.trajPlan.getSetpoint(t, pp.trajCoeffs_X, pp.trajCoeffs_Y, pp.trajCoeffs_Z);
+            if(setpoint(1, 1) > 160)
+               error('Robot:bound', "x too big"); 
+            end
             q = pp.ik3001(setpoint);
             pp.servo_jp(q);
         end
@@ -464,6 +467,15 @@ classdef Robot < handle
             pOut(1) = pIn(1) - sind(-q(1))*15;
             pOut(2) = pIn(2) - cosd(-q(1))*15;
             pOut(3) = pIn(3);
+        end
+        
+        % Returns interpolation time needed for given trajectory
+        % Takes initial position, final position and calculates distance
+        % between them. Also takes desired position. 
+        % Speed in mm/s.
+        function time = getInterpolationTime(pp, pf, speed)
+            distance = norm(pf - pp.currPosition());
+            time = distance / speed;
         end
         
     end

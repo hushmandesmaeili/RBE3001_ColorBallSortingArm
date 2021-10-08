@@ -190,10 +190,10 @@ classdef Camera < handle
         function c = findCentroid(self, char)
             inImg = self.getImage();
             out = self.colorMask(inImg, char);
-            props = regionprops(out);
-            if(props.Centroid)
-                c_img = props.Centroid;
-                c = self.camToRobot(c_img);
+            c_img = regionprops(out, 'centroid');
+            
+            if(~isempty(c_img))
+                c = self.camToRobot(c_img(1).Centroid);
             else
                 error('Camera:noBall', "no ball in view");
             end
