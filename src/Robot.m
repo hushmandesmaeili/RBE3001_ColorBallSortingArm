@@ -230,11 +230,8 @@ classdef Robot < handle
             %theta 1 is based on a triangle with known x and y
             theta1 = atan2(ts(2), ts(1));
 
-            %theta 1 is based on a triangle with known x and y
-            theta1 = atan2(ts(2), ts(1));
-
             if ~(theta1 > self.qlim(1,1) && theta1 < self.qlim(1,2))
-               error("theta 1 out of bounds");
+               error('Robot:bound', "theta 1 out of bounds");
             end
             
             d_1 = sqrt(ts(1)^2 + ts(2)^2 + (ts(3) - self.L1 - self.L0)^2);
@@ -314,7 +311,7 @@ classdef Robot < handle
             
             for i = 1:3
                if isnan(T(i))
-                   error("joint values out of bounds");
+                   error('Robot:bound', "joint values out of bounds");
                end
             end
 

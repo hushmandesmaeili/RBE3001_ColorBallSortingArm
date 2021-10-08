@@ -191,8 +191,12 @@ classdef Camera < handle
             inImg = self.getImage();
             out = self.colorMask(inImg, char);
             props = regionprops(out);
-            c_img = props.Centroid;
-            c = self.camToRobot(c_img);
+            if(props.Centroid)
+                c_img = props.Centroid;
+                c = self.camToRobot(c_img);
+            else
+                error('Camera:noBall', "no ball in view");
+            end
 %             imshowpair(inImg, out);
         end
         
