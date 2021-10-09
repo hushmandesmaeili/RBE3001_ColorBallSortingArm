@@ -83,6 +83,7 @@ CHECKORANGE =  9;
 NEXTSTATEERROR = 10;
 LASTSTATEERROR= 11;
 
+caughtException = false;
 state = RESET;
 nextState = NEXTSTATEERROR;
 lastState = LASTSTATEERROR;
@@ -100,15 +101,16 @@ try
 
             % Reset arm and gripper
             case RESET
-%                 robot.setQuinticTraj(robot.ik3001([-80 20 0]), 2000);
-                robot.interpolate_jp([-80 20 0], 2000);
+                robot.setQuinticTraj(robot.position([-80 20 0]), 2000);
+%                 robot.interpolate_jp([-80 20 0], 2000);
                 robot.openGripper();
-                pause(1);
-%                 lastState = state;
-%                 state = MOVING;
-%                 nextState = CHECKYELLOW;
+%                 pause(1);
+                tic
+                lastState = state;
+                state = MOVING;
+                nextState = CHECKYELLOW;
 
-                  state = CHECKYELLOW;
+%                   state = CHECKYELLOW;
                   
             case MOVING
                 try
@@ -119,7 +121,8 @@ try
                         nextState = NEXTSTATEERROR;
                     end
                 catch exception
-                    if strcmp(exception.identifier, 'Robot:bound')
+                    if strcmp(exception.identifier, 'Robot:bound') || strcmp(exception.identifier, 'Robot:xbound')
+                        if strcmp(exception.identifier, 'Robot:bound'), caughtException = true; end
                         robot.setQuinticTraj([100 0 50], 2000);
                         nextState = lastState;
                         lastState = LASTSTATEERROR;
@@ -134,6 +137,7 @@ try
             case MOVETOBALL
                 robot.setQuinticTraj(ballPos, 2000);
                 tic
+                robot.openGripper();
                 lastState = state;
                 state = MOVING;
                 nextState = PICK;
@@ -150,7 +154,7 @@ try
             % Slow rise     
             case SLOWRISE
                  time = robot.getInterpolationTime(drop_location, SPEED);
-                 robot.setQuinticTraj(drop_location, time);
+                 robot.setQuinticTraj(drop_location, 2000);
                  tic
                  lastState = CHECKYELLOW;
                  state = MOVING;
@@ -163,94 +167,141 @@ try
 
             % Check if yellow balls
             case CHECKYELLOW
-                if (cam.isColorPresent('y'))
-                    try
-                        ballPos = cam.ballPosition('y');
+                try
+                    if(~caughtException)
+                        if (cam.isColorPresent('y'))
+                            ballPos = cam.ballPosition('y');
+                            time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            drop_location = yellowBin;
+                            tic
+                            lastState = state;
+                            state = MOVING;
+                            nextState = MOVETOBALL;
+                            
+                        else
+                            state = CHECKRED;
+                        end
+                    else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
                         drop_location = yellowBin;
                         tic
                         lastState = state;
                         state = MOVING;
                         nextState = MOVETOBALL;
-                    catch exception
-                        if strcmp(exception.identifier, 'Camera:noBall')
-                            state = RESET;
-                        else
-                            rethrow(exception);
-                        end
+                        caughtException = false;
                     end
-                else
-                    state = CHECKRED;
+                catch exception
+                    if strcmp(exception.identifier, 'Camera:noBall')
+                        state = RESET;
+                    else
+                        rethrow(exception);
+                    end
                 end
                 
            % Check if red balls
             case CHECKRED
-                if (cam.isColorPresent('r'))
-                    try
-                        ballPos = cam.ballPosition('r');
+                try
+                    if(~caughtException)
+                        if (cam.isColorPresent('r'))
+                            ballPos = cam.ballPosition('r');
+                            time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            drop_location = redBin;
+                            tic
+                            lastState = state;
+                            state = MOVING;
+                            nextState = MOVETOBALL;
+                            
+                        else
+                            state = CHECKGREEN;
+                        end
+                    else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
                         drop_location = redBin;
                         tic
                         lastState = state;
                         state = MOVING;
                         nextState = MOVETOBALL;
-                    catch exception
-                        if strcmp(exception.identifier, 'Camera:noBall')
-                            state = RESET;
-                        else
-                            rethrow(exception);
-                        end
+                        caughtException = false;
                     end
-                else
-                    state = CHECKGREEN;
+                catch exception
+                    if strcmp(exception.identifier, 'Camera:noBall')
+                        state = RESET;
+                    else
+                        rethrow(exception);
+                    end
                 end
                 
             % Check if green balls
             case CHECKGREEN
-                if (cam.isColorPresent('g'))
-                    try
-                        ballPos = cam.ballPosition('g');
+                try
+                    if(~caughtException)
+                        if (cam.isColorPresent('g'))
+                            ballPos = cam.ballPosition('g');
+                            time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            drop_location = greenBin;
+                            tic
+                            lastState = state;
+                            state = MOVING;
+                            nextState = MOVETOBALL;
+                        else
+                            state = CHECKORANGE;
+                        end
+                    else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
                         drop_location = greenBin;
                         tic
                         lastState = state;
                         state = MOVING;
                         nextState = MOVETOBALL;
-                    catch exception
-                        if strcmp(exception.identifier, 'Camera:noBall')
-                            state = RESET;
-                        else
-                            rethrow(exception);
-                        end
+                        caughtException = false;
                     end
-                else
-                    state = CHECKORANGE;
+                catch exception
+                    if strcmp(exception.identifier, 'Camera:noBall')
+                        state = RESET;
+                    else
+                        rethrow(exception);
+                    end
                 end
                 
            % Check if orange balls
             case CHECKORANGE
-                if (cam.isColorPresent('o'))
-                    try
-                        ballPos = cam.ballPosition('o');
+                try
+                    if(~caughtException)
+                        if (cam.isColorPresent('o'))
+                            ballPos = cam.ballPosition('o');
+                            time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            drop_location = orangeBin;
+                            tic
+                            lastState = state;
+                            state = MOVING;
+                            nextState = MOVETOBALL;
+                            
+                        else
+                            state = CHECKYELLOW;
+                        end
+                    else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
                         drop_location = orangeBin;
                         tic
                         lastState = state;
                         state = MOVING;
                         nextState = MOVETOBALL;
-                    catch exception
-                        if strcmp(exception.identifier, 'Camera:noBall')
-                            state = RESET;
-                        else
-                            rethrow(exception);
-                        end
+                        caughtException = false;
                     end
-                else
-                    state = CHECKYELLOW;
+                catch exception
+                    if strcmp(exception.identifier, 'Camera:noBall')
+                        state = RESET;
+                    else
+                        rethrow(exception);
+                    end
                 end
                 
             %next state error condition
@@ -272,7 +323,17 @@ catch exception
     disp('Exited on error, clean shutdown');
 end
 
-
 %% Shutdown Procedure
 robot.shutdown()
 cam.shutdown()
+% 
+% function out = ballHelper(ballPos, bin, state, aboveBall, SPEED)
+%     time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
+%     robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+%     drop_location = bin;
+%     tic
+%     lastState = state;
+%     state = MOVING;
+%     nextState = MOVETOBALL;
+%     out = [drop_location lastState state nextState];
+% end

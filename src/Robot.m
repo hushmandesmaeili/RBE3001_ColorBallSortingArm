@@ -433,7 +433,7 @@ classdef Robot < handle
         function trajMove(pp, t)
             setpoint = pp.trajPlan.getSetpoint(t, pp.trajCoeffs_X, pp.trajCoeffs_Y, pp.trajCoeffs_Z);
             if(setpoint(1, 1) > 160)
-               error('Robot:bound', "x too big"); 
+               error('Robot:xbound', "x too big"); 
             end
             q = pp.ik3001(setpoint);
             pp.servo_jp(q);
