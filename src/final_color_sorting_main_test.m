@@ -36,7 +36,7 @@ myHIDSimplePacketComs.setVid(vid);
 myHIDSimplePacketComs.connect();
 
 robot = Robot(myHIDSimplePacketComs);
-
+% 
 % cam = Camera();
 % save lab5cam cam
 load lab5cam cam
@@ -54,20 +54,20 @@ aboveBall = 40;
 atBall = 10;
 
 %bin locations
-% yellowBin = [10 -180 70];
+% yellowBin = [25 -180 70];
 % redBin = [115 -150 70];
-% greenBin = [10 180 70];
+% greenBin = [25 180 70];
 % orangeBin = [115 150 70];
 
 %some different locations to maybe avoid singularities?
-yellowBin = [145 -90 70];
-orangeBin = [145 50 70];
-redBin = [145, 50, 70];
-greenBin = [145 90 70];
+yellowBin = [25 -140 70];
+orangeBin = [75 140 70];
+redBin = [75, -140, 70];
+greenBin = [25 140 70];
 
 drop_location = 0;
 
-SPEED = 0.2;    % mm/s
+SPEED = 100;    % mm/s
 
 %enum lol
 RESET = 0;
@@ -84,6 +84,7 @@ NEXTSTATEERROR = 10;
 LASTSTATEERROR= 11;
 
 caughtException = false;
+errorCounter = 0;
 state = RESET;
 nextState = NEXTSTATEERROR;
 lastState = LASTSTATEERROR;
@@ -121,8 +122,11 @@ try
                         nextState = NEXTSTATEERROR;
                     end
                 catch exception
-                    if strcmp(exception.identifier, 'Robot:bound') || strcmp(exception.identifier, 'Robot:xbound')
-                        if strcmp(exception.identifier, 'Robot:bound'), caughtException = true; end
+                    if (strcmp(exception.identifier, 'Robot:bound') || strcmp(exception.identifier, 'Robot:xbound'))
+                        if strcmp(exception.identifier, 'Robot:bound') 
+                            caughtException = true; 
+                            errorCounter = errorCounter+1;
+                        end
                         robot.setQuinticTraj([100 0 50], 2000);
                         nextState = lastState;
                         lastState = LASTSTATEERROR;
@@ -154,7 +158,7 @@ try
             % Slow rise     
             case SLOWRISE
                  time = robot.getInterpolationTime(drop_location, SPEED);
-                 robot.setQuinticTraj(drop_location, 2000);
+                 robot.setQuinticTraj(drop_location, time);
                  tic
                  lastState = CHECKYELLOW;
                  state = MOVING;
@@ -168,11 +172,13 @@ try
             % Check if yellow balls
             case CHECKYELLOW
                 try
-                    if(~caughtException)
+                    if(~caughtException || errorCounter > 2)
+                        errorCounter = 0;
+                        caughtException = false;
                         if (cam.isColorPresent('y'))
                             ballPos = cam.ballPosition('y');
                             time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                             drop_location = yellowBin;
                             tic
                             lastState = state;
@@ -184,7 +190,7 @@ try
                         end
                     else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                         drop_location = yellowBin;
                         tic
                         lastState = state;
@@ -203,11 +209,13 @@ try
            % Check if red balls
             case CHECKRED
                 try
-                    if(~caughtException)
+                    if(~caughtException || errorCounter > 2)
+                        errorCounter = 0;
+                        caughtException = false;
                         if (cam.isColorPresent('r'))
                             ballPos = cam.ballPosition('r');
                             time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                             drop_location = redBin;
                             tic
                             lastState = state;
@@ -219,7 +227,7 @@ try
                         end
                     else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                         drop_location = redBin;
                         tic
                         lastState = state;
@@ -238,11 +246,13 @@ try
             % Check if green balls
             case CHECKGREEN
                 try
-                    if(~caughtException)
+                    if(~caughtException || errorCounter > 2)
+                        errorCounter = 0;
+                        caughtException = false;
                         if (cam.isColorPresent('g'))
                             ballPos = cam.ballPosition('g');
                             time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                             drop_location = greenBin;
                             tic
                             lastState = state;
@@ -253,7 +263,7 @@ try
                         end
                     else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                         drop_location = greenBin;
                         tic
                         lastState = state;
@@ -272,11 +282,13 @@ try
            % Check if orange balls
             case CHECKORANGE
                 try
-                    if(~caughtException)
+                    if(~caughtException || errorCounter > 2)
+                        errorCounter = 0;
+                        caughtException = false;
                         if (cam.isColorPresent('o'))
                             ballPos = cam.ballPosition('o');
                             time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                            robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                             drop_location = orangeBin;
                             tic
                             lastState = state;
@@ -288,7 +300,7 @@ try
                         end
                     else
                         time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+                        robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
                         drop_location = orangeBin;
                         tic
                         lastState = state;
@@ -329,7 +341,7 @@ cam.shutdown()
 % 
 % function out = ballHelper(ballPos, bin, state, aboveBall, SPEED)
 %     time = robot.getInterpolationTime([ballPos(1) ballPos(2) aboveBall], SPEED);
-%     robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], 2000);
+%     robot.setQuinticTraj([ballPos(1) ballPos(2) aboveBall], time);
 %     drop_location = bin;
 %     tic
 %     lastState = state;

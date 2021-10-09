@@ -412,7 +412,8 @@ classdef Robot < handle
         function isClose = isCloseToSingularity(pp, q)
             d = pp.calcJacobianDet(q);
             
-            if (d < 1.8)
+%             if (d < 1.8)
+            if (d < 0.01)
                 isClose = true;
             else
                isClose = false;
@@ -434,6 +435,10 @@ classdef Robot < handle
             setpoint = pp.trajPlan.getSetpoint(t, pp.trajCoeffs_X, pp.trajCoeffs_Y, pp.trajCoeffs_Z);
             if(setpoint(1, 1) > 160)
                error('Robot:xbound', "x too big"); 
+            end
+            currentJointConfig = pp.measured_js(1,0);
+            if(pp.isCloseToSingularity(currentJointConfig(1,:)))
+               error('Robot:singularityWowza', "at a singularity"); 
             end
             q = pp.ik3001(setpoint);
             pp.servo_jp(q);
@@ -475,7 +480,8 @@ classdef Robot < handle
         % Speed in mm/s.
         function time = getInterpolationTime(pp, pf, speed)
             distance = norm(pf - pp.currPosition());
-            time = distance / speed;
+            stime = distance / speed;
+            time = stime*1000;
         end
         
     end
