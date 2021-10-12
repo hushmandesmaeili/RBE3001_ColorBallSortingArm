@@ -36,7 +36,7 @@ myHIDSimplePacketComs.setVid(vid);
 myHIDSimplePacketComs.connect();
 
 robot = Robot(myHIDSimplePacketComs);
-% 
+
 % cam = Camera();
 % save lab5cam cam
 load lab5cam cam
@@ -81,7 +81,8 @@ CHECKRED = 7;
 CHECKGREEN = 8;
 CHECKORANGE =  9;
 NEXTSTATEERROR = 10;
-LASTSTATEERROR= 11;
+LASTSTATEERROR = 11;
+STARTCHECKTAKEIMAGE = 12;
 
 caughtException = false;
 errorCounter = 0;
@@ -103,13 +104,11 @@ try
             % Reset arm and gripper
             case RESET
                 robot.setQuinticTraj(robot.position([-80 20 0]), 2000);
-%                 robot.interpolate_jp([-80 20 0], 2000);
                 robot.openGripper();
-%                 pause(1);
                 tic
                 lastState = state;
                 state = MOVING;
-                nextState = CHECKYELLOW;
+                nextState = STARTCHECKTAKEIMAGE;
 
 %                   state = CHECKYELLOW;
                   
@@ -160,10 +159,16 @@ try
                  time = robot.getInterpolationTime(drop_location, SPEED);
                  robot.setQuinticTraj(drop_location, time);
                  tic
-                 lastState = CHECKYELLOW;
+                 lastState = STARTCHECKTAKEIMAGE;
                  state = MOVING;
                  nextState = PLACE;
 
+            %start check functions but force take new images
+            case STARTCHECKTAKEIMAGE
+                caughtException = false;
+                errorCounter = 0;
+                state = CHECKYELLOW;
+                 
             % Place ball    
             case PLACE
                 robot.openGripper();
