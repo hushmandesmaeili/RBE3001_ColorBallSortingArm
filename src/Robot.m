@@ -3,8 +3,10 @@ classdef Robot < handle
     properties
         myHIDSimplePacketComs;
         pol; 
+        trajPlan;
         GRIPPER_ID = 1962;
         endMotionSetPos;
+        endPoint;
         L0 = 55;    %Length of Link 0
         L1 = 40;    %Length of Link 1
         L2 = 100;   %Length of Link 2
@@ -20,6 +22,12 @@ classdef Robot < handle
                         -90 63]);
     end
     
+    properties (Access = private)
+       trajCoeffs_X;
+       trajCoeffs_Y;
+       trajCoeffs_Z;
+    end
+    
     methods
         
         %The is a shutdown function to clear the HID hardware connection
@@ -32,6 +40,7 @@ classdef Robot < handle
         function packet = Robot(dev)
             packet.myHIDSimplePacketComs=dev; 
             packet.pol = java.lang.Boolean(false);
+            packet.trajPlan = Traj_Planner();
         end
         
         %Perform a command cycle. This function will take in a command ID
@@ -221,11 +230,8 @@ classdef Robot < handle
             %theta 1 is based on a triangle with known x and y
             theta1 = atan2(ts(2), ts(1));
 
-            %theta 1 is based on a triangle with known x and y
-            theta1 = atan2(ts(2), ts(1));
-
             if ~(theta1 > self.qlim(1,1) && theta1 < self.qlim(1,2))
-               error("theta 1 out of bounds");
+               error('Robot:bound', "theta 1 out of bounds");
             end
             
             d_1 = sqrt(ts(1)^2 + ts(2)^2 + (ts(3) - self.L1 - self.L0)^2);
@@ -305,7 +311,7 @@ classdef Robot < handle
             
             for i = 1:3
                if isnan(T(i))
-                   error("joint values out of bounds");
+                   error('Robot:bound', "joint values out of bounds");
                end
             end
 
@@ -358,7 +364,7 @@ classdef Robot < handle
         
         % Takes data from goal_js() and returns a 4x4 homogeneous transformation
         % matrix based upon the commanded end of motion joint set point 
-        % positions in degrees.
+        % positions in degrees.pp.endMotionSetPos = endPoint
         function T = goal_cp(pp)
             T = pp.fk3001(pp.goal_js());
         end
@@ -368,8 +374,15 @@ classdef Robot < handle
             T = T(1:3, 4)';
         end
         
+        %returns current xyz position of arm
+        function p = currPosition(pp)
+           q = pp.measured_js(1, 0);
+           q = q(1, :);
+           p = pp.position(q);
+        end
+        
         %Takes in a joint configuration (Theta1, theta2, theta3, returns Jacobian for that joint
-        %configuration
+        %configurationpp.endMotionSetPos = endPoint
         function J = jacob3001(pp, q)
             
            J = [ 
@@ -399,7 +412,8 @@ classdef Robot < handle
         function isClose = isCloseToSingularity(pp, q)
             d = pp.calcJacobianDet(q);
             
-            if (d < 1.8)
+%             if (d < 1.8)
+            if (d < 0.01)
                 isClose = true;
             else
                isClose = false;
@@ -414,6 +428,60 @@ classdef Robot < handle
 %             disp('Error');
             
             error("Robot reached singular configuration. Motion has stopped.");
+        end
+        
+        %takes in final position in task space, moves robot appropriately
+        function trajMove(pp, t)
+            setpoint = pp.trajPlan.getSetpoint(t, pp.trajCoeffs_X, pp.trajCoeffs_Y, pp.trajCoeffs_Z);
+            if(setpoint(1, 1) > 160)
+               error('Robot:xbound', "x too big"); 
+            end
+            currentJointConfig = pp.measured_js(1,0);
+            if(pp.isCloseToSingularity(currentJointConfig(1,:)))
+               error('Robot:singularityWowza', "at a singularity"); 
+            end
+            q = pp.ik3001(setpoint);
+            pp.servo_jp(q);
+        end
+        
+        function setQuinticTraj(pp, endPoint, tf)
+            tf = tf/1000;
+%             pp.endPoint = pp.posAdjustOpenGripper(endPoint);
+            pp.endPoint = endPoint;
+            currentPos = pp.currPosition();
+            
+            pp.trajCoeffs_X = pp.trajPlan.quintic_traj(0, tf, currentPos(1), pp.endPoint(1), 0, 0, 0, 0);
+            pp.trajCoeffs_Y = pp.trajPlan.quintic_traj(0, tf, currentPos(2), pp.endPoint(2), 0, 0, 0, 0);
+            pp.trajCoeffs_Z = pp.trajPlan.quintic_traj(0, tf, currentPos(3), pp.endPoint(3), 0, 0, 0, 0);
+            
+        end
+        
+        function status = atEndPoint(pp)
+            currentPos = pp.currPosition();
+            BOUND = 8.5;
+%             BOUND = [5 2 5];
+            status = norm(pp.endPoint - currentPos) < BOUND;
+%             status = (abs(pp.endPoint(1) - currentPos(1)) < BOUND(1)) && (abs(pp.endPoint(2) - currentPos(2)) < BOUND(2)) && (abs(pp.endPoint(3) - currentPos(3)) < BOUND(3));
+        end
+        
+        %takes in xyz position of end of gripper, returns xyz position of
+        %gripper open position
+        function pOut = posAdjustOpenGripper(pp, pIn)
+            pOut = zeros(1, 3);
+            q = pp.measured_js(1,0);
+            pOut(1) = pIn(1) - sind(-q(1))*15;
+            pOut(2) = pIn(2) - cosd(-q(1))*15;
+            pOut(3) = pIn(3);
+        end
+        
+        % Returns interpolation time needed for given trajectory
+        % Takes initial position, final position and calculates distance
+        % between them. Also takes desired position. 
+        % Speed in mm/s.
+        function time = getInterpolationTime(pp, pf, speed)
+            distance = norm(pf - pp.currPosition());
+            stime = distance / speed;
+            time = stime*1000;
         end
         
     end

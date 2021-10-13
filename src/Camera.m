@@ -19,7 +19,7 @@ classdef Camera < handle
     
     properties (Access = private)
         camHeight = 278; %mm
-        ballRad = 11; %mm
+        ballRad = 10; %mm
         camx = 200; %mm
         
         T0Check = [0 1 0 50;
@@ -190,12 +190,17 @@ classdef Camera < handle
         function c = findCentroid(self, char)
             inImg = self.getImage();
             out = self.colorMask(inImg, char);
-            props = regionprops(out);
-            c_img = props.Centroid;
-            c = self.camToRobot(c_img);
+            c_img = regionprops(out, 'centroid');
+            
+            if(~isempty(c_img))
+                c = self.camToRobot(c_img(1).Centroid);
+            else
+                error('Camera:noBall', "no ball in view");
+            end
 %             imshowpair(inImg, out);
         end
         
+        %returns xyz position of center of ball;
         function a = ballPosition(self, char)
             centroid = self.findCentroid(char);
             camDist = sqrt((self.camx - centroid(1))^2 + centroid(2)^2);
@@ -216,10 +221,17 @@ classdef Camera < handle
             xac = ((xpc*hac)/hpc); %x distance from base to actual point
             xa = self.camx - xac;
             
-            a = [xa; ya; self.ballRad];
+            a = [xa ya self.ballRad];
+        end
+        
+        % Checks to see if color is present in board
+        % Takes in color choice as parameter, returns true/false depending 
+        % if color is present in board
+        function colorPresent = isColorPresent(self, char)
+            inImg = self.getImage();
+            out = self.colorMask(inImg, char);
             
-            
-            
+            colorPresent = ismember(1, out);
         end
     end
 end
