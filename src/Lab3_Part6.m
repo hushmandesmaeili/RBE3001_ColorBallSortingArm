@@ -137,7 +137,7 @@ try
         hold on
         plot(T, EE_Pos(:, 1), 'r-') %End Effector X Position
         plot(T, EE_Pos(:, 2), 'g-') %End Effector Y Position
-        plot(T, EE_Pos(:, 3), 'b-') %End Effector Z Position
+        plot(T, EE_Pos(:, 3), 'b-') %End Effector Z Po while (norm(transpose(p(:, i+1)) - currentPos) > BOUND)sition
         legend('End Effector X Position', 'End Effector Y Position', 'End Effector Z Position')
         title("Plot of End Effector Position vs Time")
         xlabel('Time (s)')

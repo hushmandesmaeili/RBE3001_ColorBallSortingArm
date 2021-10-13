@@ -50,9 +50,26 @@ try
     if cam.params == 0
         error("No camera parameters found!");
     end
-    cam.cam_pose = cam.getCameraPose();
-    
-    
+    [Is, pose] = cam.getRealCameraPose()
+%       [re, ree] = cam.getCameraPose()
+%       disp(ree)
+%     cam.cam_pose
+    T0Check = [0 1 0 50;
+               1 0 0 -100;
+               0 0 -1 0;
+               0 0 0 1];
+%    TCheck0 = [0 1 0 100;
+%               1 0 0 -50;
+%               0 0 -1 0;
+%               0 0 0 1];
+        
+%     T0Cam = T0Check * pose
+
+        %relate image points to base frame
+       i = [135 160];
+       g = pointsToWorld(Is, pose(1:3, 1:3), pose(1:3, 4), i);
+       c = [g(1); g(2); 0; 1]; %position in terms of checkerboard
+       p = T0Check*c;
     
 catch exception
     fprintf('\n ERROR!!! \n \n');
